@@ -18,7 +18,6 @@ class Card:
         - ranks: `1` --> Ace, `11` --> Jack, `12` --> Queen, `13` --> King
         - suits: `'s'` --> Spades, `'h'` --> Hearts; `'d'` --> "Diamonds", `'c'` --> "Clubs"
 
-    
     Instance Attributes:
     --------------------
         `_rank`: `str`
