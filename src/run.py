@@ -54,6 +54,8 @@ def proj_8():
     # Event: Prompt "Continue?" If (n)o, exit `proj_8`
     # Event: Else, Assign the new dealer based on the last turn order
     # Event: Loop until Player quits the game
+    # Event: print food for thought
+    # Optional Event: print error message (for whatever reason)
 
 
 if __name__ == '__main__':
