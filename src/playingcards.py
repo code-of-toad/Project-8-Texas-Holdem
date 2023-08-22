@@ -33,7 +33,7 @@ class Card:
     A minimalistic representation of a single playing card. Instantiation takes
     two parameters: rank & suit of the Card object.
 
-    Symbolic Representation Map:
+    Symbolic Representation Guide:
         - ranks: `1` --> Ace, `11` --> Jack, `12` --> Queen, `13` --> King
         - suits: `'s'` --> Spades, `'h'` --> Hearts; `'d'` --> "Diamonds", `'c'` --> "Clubs"
 
@@ -42,8 +42,8 @@ class Card:
         - `_rank`: `str`
         - `_suit`: `str`
     
-    Notice that these are private attributes. Please do NOT access them
-    directly, but only through method calls.
+    Use the getters and setters for both attributes. Do not access them
+    directly, as doing so could break the clicent code.
 
     How To Instantiate:
     -------------------
@@ -66,7 +66,7 @@ class Card:
 
     Representation Invariants:
     --------------------------
-    - After `self.__init__()`, a Card instance cannot be altered, in the same
+    - After `__init__()`, a Card instance cannot be altered, in the same
     way that an irl playing card cannot magically change its rank and suit.
     """
     # Instance Attributes:
@@ -140,40 +140,49 @@ class Card:
 
 class InvalidArgException(Exception):
     def __init__(self) -> None:
-        m = "Refer to the class docstring on How To Instantiate."
-        super().__init__(m)
+        msg = "\n :\n +--> \
+Refer to the class docstring on How To Instantiate.\n"
+        super().__init__(msg)
 
 
 class CardDeck():
     """
-    PokerDeck
-    ---------
+    CardDeck
+    --------
     A stack representation of the standard 52-card deck. No joker cards.
-    Note that this representation of the standard deck of cards is always face-
-    down.
+        Note: This representation of the standard deck of cards is always\
+              faced down.
 
-    How To Instantiate:
-    -------------------
-    1. For a shuffled deck:
-    >>> # CardDeck stacks are shuffled by default.
+    Three Ways To Instantiate:
+    --------------------------
+    1. Shuffled deck:
+    >>> # Shuffled by default.
     >>> deck = CardDeck()
 
-    2. For an ordered (i.e., unshuffled) deck, w/ the top of the face-down deck
-    being the Card object that represents the King of Clubs, and w/ the bottom
-    of the face-down deck being the 'Ace of Spades':
+    2. Ordered (i.e., unshuffled) deck, w/ the top of the face-down deck
+    being the Card object that represents the 'King of Clubs', and w/ the
+    bottom of the face-down deck being the 'Ace of Spades':
     >>> deck = CardDeck(shuffle=False)
 
-    3. For an empty "deck" to insert custom cards into:
+    3. Empty "deck" to manually insert custom cards into later:
     >>> deck = CardDeck(empty=True)
+    >>> deck.size()
+    0
+    >>> deck.insert(Card(1, 's'))
+    >>> deck.size()
+    1
+    >>> deck.draw()
+    Ace of Spades
+    >>> deck.size()
+    0
     """
-    # __Dev Representation Invariants:
+    # __Dev Representation Invariants:     
     # --------------------------------
-    # - The only method call capable of altering the attribute
-    #   `num_cards_in_deck` is `draw_top()`.
+    # - When called, `size()` must strictly return an `int` member of the
+    #   inclusive set [0, 52].
     #
     _deck: list[Card]
     _card_dict: dict[str, int]
-    _cards_remaining: int
 
 
     def __init__(self, shuffle=True, empty=False) -> None:
@@ -200,6 +209,14 @@ class CardDeck():
         0
         >>> d2 = CardDeck()
         >>> # --- Insert tests involving a shuffled (default) deck.
+        >>> d3 = CardDeck(empty=True)
+        >>> d3.size()
+        0
+        >>> d3.insert(Card(1, 's'))
+        >>> d3.size()
+        1
+        >>> d3.draw()
+        Ace of Spades
         """
         self._deck = []
         self._card_dict = CARD_INVENTORY.copy()
@@ -234,11 +251,11 @@ class CardDeck():
         9 of Clubs
         >>> deck.size()
         47
-        >>> # You can keep drawing until you reach the bottom face-down card: Ace of Spades.
+        >>> # You can keep drawing until the last card, Ace of Spades, is drawn.
 
         Exceptions:
         -----------
-        `draw()` raises an `EmptyDeckException` when called on an empty deck.
+        Raises `EmptyDeckException` when called on an empty deck.
         """
         # __Dependencies:
         # ---------------
@@ -251,8 +268,8 @@ class CardDeck():
         return pop_card
 
 
-    def insert_mid(self, card: Card) -> None:
-        """Insert `card` back into a random location in the deck."""
+    def insert(self, card: Card) -> None:
+        """Insert `<card>` back into a random location in the deck."""
         # __Dependencies:
         # ---------------
         # - self.size()
@@ -276,8 +293,8 @@ class CardDeck():
         self._card_dict[str(card)] = 1
 
 
-    def insert_top(self, card: Card) -> None:
-        """Push `card` to the top of the deck."""
+    def place_top(self, card: Card) -> None:
+        """Push `<card>` to the top of the deck."""
         # Error Check: Duplicate Cards
         if self._card_dict[str(card)] == 1:
             raise DuplicateCardException(card.get_rank(), card.get_suit())
@@ -309,20 +326,41 @@ class CardDeck():
         rand.shuffle(self._deck)
         return self
 
+    def is_empty(self) -> bool:
+        """
+        Return `True` if the deck is empty. Otherwise, return `False`.
+
+        Examples:
+        ---------
+        >>> d1 = CardDeck()
+        >>> d2 = CardDeck(empty=True)
+        >>> d1.is_empty()
+        False
+        >>> d2.is_empty()
+        True
+        """
+        # __Dependencies:
+        # ---------------
+        # - `size()`
+        #
+        return self.size() == 0
+
+
 
 class EmptyDeckException(Exception):
     def __init__(self):
-        m = "You cannot draw from an empty deck."
-        super().__init__(m)
+        msg = "\n :\n +--> \
+You cannot draw from an empty deck.\n"
+        super().__init__(msg)
 
 
 class DuplicateCardException(Exception):
     def __init__(self, rank, suit):
-        m = f"This deck already has the '{rank} of {suit}' card."
-        super().__init__(m)
+        msg = f"\n :\n +--> \
+This deck already contains the '{rank} of {suit}' card.\n"
+        super().__init__(msg)
 
 
 if __name__ == '__main__':
-    print()
     import doctest
     doctest.testmod()
