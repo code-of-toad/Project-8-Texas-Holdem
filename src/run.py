@@ -33,11 +33,11 @@ def proj_8():
     # Event: Blind bets
     # Event: Dealer deals 2 cards to each player
     # Event: Pre-Flop betting round
-    # Event: Dealer: Reveal [Flop] card
+    # Event: Dealer reveals 3 community [Flop] cards
     # Event: [Flop] betting round
-    # Event: Dealer: Reveal [Turn] card
+    # Event: Dealer reveals the community [Turn] card
     # Event: [Turn] betting round
-    # Event: Dealer: Reveal [River] card
+    # Event: Dealer reveals the community [River] card
     # Event: [River] betting round
     # Optional Event: Move to the Showdown
     # Optional Event: Called player (the last player to make an aggressive
