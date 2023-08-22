@@ -42,17 +42,17 @@ def proj_8():
     # Optional Event: Move to the Showdown
     # Optional Event: Called player (the last player to make an aggressive
     #                 action, i.e., bet or raise) during the final betting
-    #                 round must show their hand first.
+    #                 round must show their hand first
     # Optional Event: Other players choose to either show their hand to contest
-    #                 the pot, or muck (discard w/o showing) in turn order.
-    # Optional Event: Move to the Winnder's Choice.
+    #                 the pot, or muck (discard w/o showing) in turn order
+    # Optional Event: Move to the Winnder's Choice
     #                 I.e., if a player's hand is uncontested (no one calls
     #                       their final bet/raise), they can choose to show or
-    #                       muck.
+    #                       muck
     # Optional Event: Award the pot to the best hand shown or split the pot
-    #                 for equal hands.
-    # Event: Prompt "Continue?" If (n)o, exit `proj_8``.
-    # Event: Else, Assign the dealer based on the last turn order
+    #                 for equal hands
+    # Event: Prompt "Continue?" If (n)o, exit `proj_8`
+    # Event: Else, Assign the new dealer based on the last turn order
     # Event: Loop until Player quits the game
 
 
