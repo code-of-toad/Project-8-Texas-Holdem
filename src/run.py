@@ -46,11 +46,14 @@ from __future__ import annotations
 from typing import Any, Union, Optional
 import random as rand
 
+from playingcards import Card, CardDeck
 import playingcards as pc
 
 
+
 ai_list = ['Mr. Johnson', 'Eng Moe', 'Shashta', 'Ishmael', 'Jesse', 'xXgregXx',
-           'citizen_sane', 'codge', 'Elvis', 'Cat', 'DoG', 'Monkey']
+           'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog', 'Monkey', 'neand69',
+           'ManBearPig', 'Team-O', 'j0ker', 'Bavid Dlaine', 'Uncle Wong', 'IT']
 rand.shuffle(ai_list)
 
 
@@ -59,10 +62,24 @@ class User:
     Base class to be inherited by classes representing irl players and A.I.
     players.
     """
-    _is_dealer: bool
+    # "Current" Status:
+    # -----------------
+    _has_dealer_btn: bool
+    _hole_cards: tuple[Card, Card]
+    # Accumulated Stats:
+    # ------------------
+    _money_in_wallet: int
+    _number_of_hands_won: int
 
 
     def __init__(self) -> None:
+        """
+        #TODO
+        """
+        pass
+
+
+    def receive_card(self, card: Card) -> None:
         """
         #TODO
         """
@@ -85,7 +102,8 @@ class AI(User):
 
 class Poker:
     """
-    A static class designed to handle game events for Project_8: Texas Hold'em.
+    A singleton class designed to handle game events for\
+    Project_8: Texas Hold'em.
 
     [As of August 21, 2023]
     `Poker` is a singleton class that contains ALL functionality required to
@@ -111,7 +129,7 @@ def proj_8():
     --------------
     0. Each "game" of poker is referred to as the hand.
     1. The turn order moves in the clockwise direction.
-    2. In "self-deal" games, the DealerButton moves from hand to hand, to each
+    2. In "self-deal" games, the dealer button moves from hand to hand, to each
     player, to whom it assigns the dealer duty for the hand about to begin.
     3. In a cash game, the small blind bets $1, and the big blind bets $2.
     4. In the first betting round, the first raise must be at least twice the
@@ -123,7 +141,6 @@ def proj_8():
     the three player options boil back down to "call", "raise", or "fold".
 
 
-
     Hold'em Terms:
     --------------
      - Hand: the best combination of five out of the seven total cards a
@@ -133,7 +150,7 @@ def proj_8():
      - Aggressor: the player who initiated the last bet/raise.
     """
     # Event: Greeting message
-    print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio")
+    print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio.")
     print("--v0.0.1\n")
     print("The game will be Texas Hold'em style poker. Let's get ready to play!\n")
 
@@ -160,22 +177,34 @@ def proj_8():
     print(f"Minimum buy-in amount:\n    ${min_buy_in}\n")
     print(f"Minimum bet amount:\n    ${min_bet}")
     print("--------------------------------------------")
-    print("Is this correct? [y]es, or [n]o? ")
+    print("Is this correct? [y]es, or [n]o? ", end='')
     temp_str = input()
-
+    ready_to_proceed = None
     if temp_str in ['y', 'Y']:
         ready_to_proceed = True
     elif temp_str in ['n', 'N']:
         ready_to_proceed = False
 
     if not ready_to_proceed:
-        print('you must train harder son')
+        print('\nyou must train harder son\n')
         exit()
-    
-
 
     # Event: * BEGIN GAME *
+    print("\nLet's begin. Shuffle up and deal!\n")
+    deck = pc.CardDeck()
+    print(f"{username}'s Cards:")
+    print(f"    {deck.draw()}")
+    print(f"    {deck.draw()}\n")
+    print("Community Cards:")
+    print(f"    {deck.draw()}")
+    print(f"    {deck.draw()}")
+    print(f"    {deck.draw()}")
+    print(f"    {deck.draw()}")
+    print(f"    {deck.draw()}")
     # Event: Assign the dealer
+    #TODO: Write logic for assigning dealer duties
+    print("\nexit game\n")
+    
     # Event: Blind bets (to the dealer's left: small blind, big blind)
     # Event: Dealer deals 2 hole cards to each player, starting w/ one card
     #        each & from the dealer's left
