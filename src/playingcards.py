@@ -150,7 +150,7 @@ class CardDeck():
     CardDeck
     --------
     A stack representation of the standard 52-card deck. No joker cards.
-        Note: This representation of the standard deck of cards is always\
+        Note: This representation of the standard deck of cards is always \
               faced down.
 
     Three Ways To Instantiate:
@@ -159,9 +159,9 @@ class CardDeck():
     >>> # Shuffled by default.
     >>> deck = CardDeck()
 
-    2. Ordered (i.e., unshuffled) deck, w/ the top of the face-down deck
-    being the Card object that represents the 'King of Clubs', and w/ the
-    bottom of the face-down deck being the 'Ace of Spades':
+    2. Ordered (i.e., unshuffled) deck, w/ the top of the deck being the Card
+    object that represents the 'King of Clubs', and w/ the bottom of the deck
+    being the 'Ace of Spades':
     >>> deck = CardDeck(shuffle=False)
 
     3. Empty "deck" to manually insert custom cards into later:
