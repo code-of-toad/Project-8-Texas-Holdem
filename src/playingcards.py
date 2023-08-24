@@ -145,10 +145,10 @@ Refer to the class docstring on How To Instantiate.\n"
         super().__init__(msg)
 
 
-class CardDeck():
+class Deck():
     """
-    CardDeck
-    --------
+    Deck
+    ----
     A stack representation of the standard 52-card deck. No joker cards.
         Note: This representation of the standard deck of cards is always \
               faced down.
@@ -157,15 +157,15 @@ class CardDeck():
     --------------------------
     1. Shuffled deck:
     >>> # Shuffled by default.
-    >>> deck = CardDeck()
+    >>> deck = Deck()
 
     2. Ordered (i.e., unshuffled) deck, w/ the top of the deck being the Card
     object that represents the 'King of Clubs', and w/ the bottom of the deck
     being the 'Ace of Spades':
-    >>> deck = CardDeck(shuffle=False)
+    >>> deck = Deck(shuffle=False)
 
     3. Empty "deck" to manually insert custom cards into later:
-    >>> deck = CardDeck(empty=True)
+    >>> deck = Deck(empty=True)
     >>> deck.size()
     0
     >>> deck.insert(Card(1, 's'))
@@ -189,7 +189,7 @@ class CardDeck():
         """
         __Doctests:
         -----------
-        >>> d1 = CardDeck(shuffle=False)
+        >>> d1 = Deck(shuffle=False)
         >>> d1.size()
         52
         >>> d1.draw()
@@ -207,9 +207,9 @@ class CardDeck():
         Ace of Spades
         >>> d1.size()
         0
-        >>> d2 = CardDeck()
+        >>> d2 = Deck()
         >>> # --- Insert tests involving a shuffled (default) deck.
-        >>> d3 = CardDeck(empty=True)
+        >>> d3 = Deck(empty=True)
         >>> d3.size()
         0
         >>> d3.insert(Card(1, 's'))
@@ -236,7 +236,7 @@ class CardDeck():
 
         How To Use:
         -----------
-        >>> deck = CardDeck(shuffle=False)
+        >>> deck = Deck(shuffle=False)
         >>> deck.size()
         52
         >>> deck.draw()
@@ -314,7 +314,7 @@ class CardDeck():
         return len(self._deck)
 
 
-    def shuffle(self) -> CardDeck:
+    def shuffle(self) -> Deck:
         """
         Shuffle the deck in place, and return this newly-shuffled `CardDeck`
         object.
@@ -332,8 +332,8 @@ class CardDeck():
 
         Examples:
         ---------
-        >>> d1 = CardDeck()
-        >>> d2 = CardDeck(empty=True)
+        >>> d1 = Deck()
+        >>> d2 = Deck(empty=True)
         >>> d1.is_empty()
         False
         >>> d2.is_empty()
