@@ -71,16 +71,29 @@ class ANN:
     """
     Dev assistant that carries cool constants and static methods.
     """
+    SUITS_EMJ: tuple = ('♠', '♥', '♦', '♣')
+    SUITS_STR: tuple = ('Spades', 'Hearts', 'Diamonds', 'Clubs')
+    VALID_RANKS: tuple = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 255)
+    RANKS_NO_JOKERS: tuple = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
+    STANDARD_DECK_EMJ: dict = {'♠': RANKS_NO_JOKERS,
+                            '♥': RANKS_NO_JOKERS,
+                            '♦': RANKS_NO_JOKERS,
+                            '♣': RANKS_NO_JOKERS}
+    STANDARD_DECK_STR: dict = {'Spades': RANKS_NO_JOKERS,
+                            'Hearts': RANKS_NO_JOKERS,
+                            'Diamonds': RANKS_NO_JOKERS,
+                            'Clubs': RANKS_NO_JOKERS}
+    AI_NAMES = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
+                'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
+                'Monkey', 'neand69', 'ManBearPig', 'Team-O', 'j0ker',
+                'Bavid Dlaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey',
+                'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈', '나는놈',
+                '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
+
+
     @staticmethod
-    def get_ai_list():
-        ai_list = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
-                   'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
-                   'Monkey', 'neand69', 'ManBearPig', 'Team-O', 'j0ker',
-                   'Bavid Dlaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey',
-                   'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈', '나는놈',
-                   '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
-        rand.shuffle(ai_list)
-        return(ai_list)
+    def shuffle_ai_list() -> None:
+        rand.shuffle(ANN.AI_NAMES)
 
 
 class PokerTable():
@@ -105,6 +118,8 @@ class PokerTable():
     burned_cards: list[Card]
     # Pot
     pot: int
+    # For extensibility
+    _id: tuple[str, int]
 
 
 class Dealer():
@@ -118,24 +133,30 @@ class Dealer():
     3. Burns a card before revealing each of the flop, turn, and river cards
     for a maximum total of three times per hand.
     4. Collects rake.
-    5. Repeat
+    5. Repeat.
     """
+    pass
 
 
 class Player():
     """
     """
-    best_hand: list[Card]
-
-
-class Ai():
-    """
-    """
+    hole_cards: list[Card, Card]
+    curr_hand: list[Card, Card, Card, Card, Card]
+    stack: int
+    
 
 
 class User():
     """
     """
+    pass
+
+
+class Ai():
+    """
+    """
+    pass
 
 
 def proj_8():
@@ -148,6 +169,46 @@ def proj_8():
     print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio.")
     print("--v0.0.2\n")
     print("The game will be Texas Hold'em style poker. Let's get ready to play!\n")
+
+
+    # +-------------------------------------------------------------------+
+    # |                                                                   |
+    # |  TODO: Implement credential system & prompt user authentication.  |
+    # |                                                                   |
+    # +-------------------------------------------------------------------+
+
+
+    # def shuffle_deck(self)
+
+    # def small_blind(self)
+    # def big_blind(self)
+
+    # def deal(self)
+    # def betting_round_1(self)
+
+    # def burn_card(self)
+    # def flop_card(self)
+    # def betting_round_2(self)
+
+    # def burn_card(self)
+    # def turn_card(self)
+    # def betting_round_3(self)
+
+    # def burn_card(self)
+    # def river_card(self)
+    # def betting_round_4(self)
+
+    # ..if at showdown phase:
+    #     def reveal_aggressor_hand(self)
+    #     ..if there's a better hand:
+    #         def reveal_best_hand(self)
+    # def let_show_or_muck(self)
+
+    # def rake(self)
+    # def award_winner(self)
+
+    # def shift_turn_order_queue(self)
+    # LOOP-BACK: def shuffle_deck(self)
 
 
 if __name__ == '__main__':
