@@ -1,5 +1,5 @@
 """
-Project_8: Texas Hold'em (v0.0.1)
+Project_8: Texas Hold'em (v0.0.2)
 =================================
 
 Texas Hold'em Poker Q&A:
@@ -40,83 +40,65 @@ A: A card discarded from the top of the deck before dealing community cards.
 Q: How is the winner determined in Texas Hold'em?
 A: The player with the best five-card hand or the last player remaining after all others have folded.
 
+Q: What is a "called player" in poker?
+A: A player who has matched a bet/raise.
+
+Q: What is an "aggresive player" in poker?
+A: The player who initiated the last bet/raise.
+
+Q: In the showdown, does the aggressor have the option to not show his cards?
+A: Yes. If no one calls the last aggressor's bet, the aggressor can choose to
+   muck (not show) their hand and still win the pot. If called, they must show.
+
+Q: If the winner is determined before the showdown, must the winner reveal his
+   cards?
+A: No. If all players fold to a bet or raise, the winner can choose to muck
+   their hand without revealing it.
+
 Note: This is a basic list, and there are many more specific and nuanced questions players might have about Texas Hold'em.
 """
 from __future__ import annotations
 from typing import Any, Union, Optional
+from enum import Enum
 import random as rand
+import sys
 
 from playingcards import Card, CardDeck
 import playingcards as pc
 
 
-
 ai_list = ['Mr. Johnson', 'Eng Moe', 'Shashta', 'Ishmael', 'Jesse', 'xXgregXx',
            'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog', 'Monkey', 'neand69',
-           'ManBearPig', 'Team-O', 'j0ker', 'Bavid Dlaine', 'Uncle Wong', 'IT']
+           'ManBearPig', 'Team-O', 'j0ker', 'Bavid Dlaine', 'Uncle Wong', 'IT',
+           'Shrek', 'Donkey', 'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈',
+           '나는놈', '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
 rand.shuffle(ai_list)
 
 
-class User:
-    """
-    Base class to be inherited by classes representing irl players and A.I.
-    players.
-    """
-    # "Current" Status:
-    # -----------------
-    _has_dealer_btn: bool
-    _hole_cards: tuple[Card, Card]
-    # Accumulated Stats:
-    # ------------------
-    _money_in_wallet: int
-    _number_of_hands_won: int
-
-
-    def __init__(self) -> None:
-        """
-        #TODO
-        """
-        pass
-
-
-    def receive_card(self, card: Card) -> None:
-        """
-        #TODO
-        """
-        pass
-
-
-class Player(User):
-    """
-    #TODO
-    """
-    pass
-
-
-class AI(User):
-    """
-    #TODO
-    """
-    pass
-
-
-class Poker:
-    """
-    A singleton class designed to handle game events for\
-    Project_8: Texas Hold'em.
-
-    [As of August 21, 2023]
-    `Poker` is a singleton class that contains ALL functionality required to
-    play Project_8: Texas Hold'em.
-
-
-
-    Static Method Calls:
-    --------------------
-    """
-
-
 def proj_8():
+    """
+    Project_8: Texas Hold'em.
+    -------------------------
+    Keep it simple, stupid.
+    """
+    print('\n---------------DeBuG---------------Scope-------proj_8()\n')
+    print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio.")
+    print("--v0.0.2\n")
+    print("The game will be Texas Hold'em style poker. Let's get ready to play!\n")
+
+
+
+
+
+
+
+
+if __name__ == '__main__':
+    proj_8()
+    sys.exit()
+
+
+def proj_8_ARCHIVED_ON_AUGUST_23_2023():
     """
     Run Project_8: Texas Hold'em.
 
@@ -127,7 +109,6 @@ def proj_8():
 
     Hold'em Rules:
     --------------
-    0. Each "game" of poker is referred to as the hand.
     1. The turn order moves in the clockwise direction.
     2. In "self-deal" games, the dealer button moves from hand to hand, to each
     player, to whom it assigns the dealer duty for the hand about to begin.
@@ -157,16 +138,20 @@ def proj_8():
     # Event: Initialize your username.
     print("Enter your username: ", end='')
     username: str = input()
+    #        Initialize Player class.
+
+
     # Event: Enter the number of players.
     print("Set the number of players (from 2 to 10): ", end='')
     num_players: int = int(input())
-    # Event: Enter the minimum bet
+
+    # Event: Enter the minimum bet.
     print("Set the minimum buy-in amount: $", end='')
     min_buy_in: int = int(input())
     print("Set the minumum bet amount for each hand: $", end='')
     min_bet: int = int(input())
 
-    # Event: Confirmation prompt
+    # Event: Confirmation prompt.
     print("\nNice. Here's a summary of your hold'em game:")
     print("--------------------------------------------")
     print("Players:")
@@ -180,17 +165,18 @@ def proj_8():
     print("Is this correct? [y]es, or [n]o? ", end='')
     temp_str = input()
     ready_to_proceed = None
-    if temp_str in ['y', 'Y']:
+    if temp_str in ['y', 'Y', 'yes', 'Yes']:
         ready_to_proceed = True
-    elif temp_str in ['n', 'N']:
+    elif temp_str in ['n', 'N', 'no', 'No']:
         ready_to_proceed = False
-
+    
+    # Event: User answer to confirmation prompt.
     if not ready_to_proceed:
         print('\nyou must train harder son\n')
         exit()
 
     # Event: * BEGIN GAME *
-    print("\nLet's begin. Shuffle up and deal!\n")
+    print("\nCool, let's begin. Shuffle up and deal!\n")
     deck = pc.CardDeck()
     print(f"{username}'s Cards:")
     print(f"    {deck.draw()}")
@@ -234,37 +220,3 @@ def proj_8():
     #
     # Optional Event: print error message (for whatever reason)
     #
-
-
-if __name__ == '__main__':
-    proj_8()
-
-
-"""
-Q & A
-=====
-
-Q: Are 'called player' and 'aggressive player' used interchangeably?
--------------------------------------------------------------------------------
-A: No.
-
-       "Called player": A player who has matched a bet/raise.
-       "Aggressor": The player who initiated the last bet/raise.
-
-   Different terms, different meanings.
-
-
-Q: In the showdown, does the aggressor have the option to not show his cards?
--------------------------------------------------------------------------------
-A: Yes. If no one calls the last aggressor's bet, the aggressor can choose to
-   muck (not show) their hand and still win the pot. If called, they must show.
-
-
-Q: If the winner is determined before the showdown, must the winner reveal his
-   cards?
--------------------------------------------------------------------------------
-A: No. If all players fold to a bet or raise, the winner can choose to muck
-   their hand without revealing it.
-
-
-"""
