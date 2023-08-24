@@ -63,16 +63,79 @@ from enum import Enum
 import random as rand
 import sys
 
-from playingcards import Card, CardDeck
+from playingcards import Card, Deck
 import playingcards as pc
 
 
-ai_list = ['Mr. Johnson', 'Eng Moe', 'Shashta', 'Ishmael', 'Jesse', 'xXgregXx',
-           'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog', 'Monkey', 'neand69',
-           'ManBearPig', 'Team-O', 'j0ker', 'Bavid Dlaine', 'Uncle Wong', 'IT',
-           'Shrek', 'Donkey', 'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈',
-           '나는놈', '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
-rand.shuffle(ai_list)
+class ANN:
+    """
+    Dev assistant that carries cool constants and static methods.
+    """
+    @staticmethod
+    def get_ai_list():
+        ai_list = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
+                   'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
+                   'Monkey', 'neand69', 'ManBearPig', 'Team-O', 'j0ker',
+                   'Bavid Dlaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey',
+                   'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈', '나는놈',
+                   '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
+        rand.shuffle(ai_list)
+        return(ai_list)
+
+
+class PokerTable():
+    """
+    Use the `PokerTable` class to instantiate a game manager for a single
+    buy-in.
+
+    This class is designed to be an emulation of a real-scenario poker table,
+    w/ moving parts (i.e., players, cards, dealer, pot). That way, debugging
+    logic becomes easier.
+
+    In other words, you should be able to "exit the current poker table with
+    your winnings (or losses)" and instantiate a new instance of `PokerTable`
+    that will, then, manage that new poker table with the minimum buy-in amount
+    of your choice.
+    """
+    # Individuals
+    players: list[Player]
+    dealer: Dealer
+    # Cards
+    board: list[Card]
+    burned_cards: list[Card]
+    # Pot
+    pot: int
+
+
+class Dealer():
+    """
+    Duties:
+    -------
+    0.1. Speaks to the players; e.g., announcing hands in the showdown, etc.
+    0.2. Assigns the small blind and the big blind.
+    1. Shuffles the deck of cards.
+    2. Deals hole cards to players one at a time & starting from the left.
+    3. Burns a card before revealing each of the flop, turn, and river cards
+    for a maximum total of three times per hand.
+    4. Collects rake.
+    5. Repeat
+    """
+
+
+class Player():
+    """
+    """
+    best_hand: list[Card]
+
+
+class Ai():
+    """
+    """
+
+
+class User():
+    """
+    """
 
 
 def proj_8():
@@ -85,12 +148,6 @@ def proj_8():
     print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio.")
     print("--v0.0.2\n")
     print("The game will be Texas Hold'em style poker. Let's get ready to play!\n")
-
-
-
-
-
-
 
 
 if __name__ == '__main__':
@@ -177,7 +234,7 @@ def proj_8_ARCHIVED_ON_AUGUST_23_2023():
 
     # Event: * BEGIN GAME *
     print("\nCool, let's begin. Shuffle up and deal!\n")
-    deck = pc.CardDeck()
+    deck = pc.Deck()
     print(f"{username}'s Cards:")
     print(f"    {deck.draw()}")
     print(f"    {deck.draw()}\n")
