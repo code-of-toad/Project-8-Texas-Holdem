@@ -67,7 +67,7 @@ from playingcards import Card, Deck
 import playingcards as pc
 
 
-class ANN:
+class Ann:
     """
     Dev assistant that carries cool constants and static methods.
     """
@@ -90,73 +90,189 @@ class ANN:
                 'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈', '나는놈',
                 '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
 
-
     @staticmethod
-    def shuffle_ai_list() -> None:
-        rand.shuffle(ANN.AI_NAMES)
+    def shuffle_ai_names() -> None:
+        rand.shuffle(Ann.AI_NAMES)
 
 
-class PokerTable():
+class Player:
     """
-    Use the `PokerTable` class to instantiate a game manager for a single
-    buy-in.
-
-    This class is designed to be an emulation of a real-scenario poker table,
-    w/ moving parts (i.e., players, cards, dealer, pot). That way, debugging
-    logic becomes easier.
-
-    In other words, you should be able to "exit the current poker table with
-    your winnings (or losses)" and instantiate a new instance of `PokerTable`
-    that will, then, manage that new poker table with the minimum buy-in amount
-    of your choice.
+    #TODO
     """
-    # Individuals
-    players: list[Player]
-    dealer: Dealer
-    # Cards
-    board: list[Card]
-    burned_cards: list[Card]
-    # Pot
-    pot: int
-    # For extensibility
-    _id: tuple[str, int]
-
-
-class Dealer():
-    """
-    Duties:
-    -------
-    0.1. Speaks to the players; e.g., announcing hands in the showdown, etc.
-    0.2. Assigns the small blind and the big blind.
-    1. Shuffles the deck of cards.
-    2. Deals hole cards to players one at a time & starting from the left.
-    3. Burns a card before revealing each of the flop, turn, and river cards
-    for a maximum total of three times per hand.
-    4. Collects rake.
-    5. Repeat.
-    """
-    pass
-
-
-class Player():
-    """
-    """
+    # Attributes
+    username: str
+    stack: int
     hole_cards: list[Card, Card]
     curr_hand: list[Card, Card, Card, Card, Card]
-    stack: int
+    #
+    is_hum: bool
+    is_cpu: bool
+
+    def __init__(self, is_hum: bool, username: str, stack: int) -> None:
+        """
+        #TODO
+        """
+        if is_hum:
+            self.is_hum = True
+            self.is_cpu = False
+        else:
+            self.is_hum = False
+            self.is_cpu = True
+        self.username = username
+        self.stack = stack
+        self.hole_cards = []
+        self.curr_hand = []
+
+
+class Dealer:
+    """
+    The `Dealer` class manages all events related to each specific hand.
+    """
+    # Attributes
+    deck: Deck
+    board: list[Card]
+    burned_cards: list[Card]
+    pot: int
+
+    def __init__(self) -> None:
+        """
+        #TODO
+        """
+        self.deck = Deck()
+        self.board = []
+        self.burned_cards = []
+        self.pot = 0
     
+    def new_deck(self) -> None:
+        """
+        Forget the old deck & initialize a new `Deck`.
+        """
+        self.deck = Deck()
+    
+    def shuffle_deck(self) -> None:
+        """
+        Shuffle the deck.
+        """
+        self.deck.shuffle()
 
 
-class User():
+class PokerTable:
     """
+    Use the `PokerTable` class to instantiate a game manager for a single
+    buy-in. It provides a structure for the moving parts of poker in one place.
+    It also collects stats from each hand.
+
+    Assuming an abstract perspective, you should be able to "exit the current
+    poker table with your winnings (or losses)" and instantiate a new instance
+    of `PokerTable` that will, then, manage that new poker table with the
+    minimum buy-in amount of your choice.
+    """
+    # Action Takers
+    dealer: Dealer
+    player_queue: list[Player]  # Use a queue to conveniently shift turn order.
+    curr_hand_info: dict[str, Any]
+
+
+    def __init__(self,
+                 dealer: Dealer,
+                 players: list[Player]) -> None:
+        """
+        #TODO
+        """
+        self.dealer = dealer
+        self.player_queue = players
+        self.curr_hand_info = {'#KEY': '#VAL'}
+
+# -----------------------------------------------------------------------------
+
+def event1_print_welcome_msg():
+    """
+    Event 1: Print welcome message.
+    """
+    print("\nFrom proj_Studio,\nWelcome to Project_8: Texas Hold'em, v0.0.2.")
+    print("\nNote: Pressing 'ctrl + c' will exit the game.\n")
+    print("\nThe game will be Texas Hold'em style poker. Let's get ready to play!\n")
+
+def event2_request_table_info() -> tuple[str, int, int, int]:
+    """
+    Event 2: Request table info.
+    """
+    print("---------- TABLE SETUP ----------")
+    username = input("    - Username: ")
+    player_count = input("    - Number of seats: ")
+    min_buyin = input("    - Minimum buy-in: $")
+    min_bet = input("    - Minimum bet: $")
+    print("---------------------------------")
+    print("  ^")
+    return username, int(player_count), int(min_buyin), int(min_bet)
+
+def event2_re_request_table_info() -> tuple[str, int, int, int]:
+    """
+    Event 2: Request table info. Again.
+    """
+    print("---------- TABLE SETUP ----------")
+    username = input("    - Username: ")
+    player_count = input("    - Number of seats: ")
+    min_buyin = input("    - Minimum buy-in: $")
+    min_bet = input("    - Minimum bet: $")
+    print("---------------------------------")
+    print("  ^")
+
+    ans = input("Proceed with these settings? (y/n) ")
+    if ans in ['Y', 'y', 'Yes', 'yes', '']:
+        print("\nLet's begin! Enjoy responsibly.\n")
+        return username, int(player_count), int(min_buyin), int(min_bet)
+    elif ans in ['N', 'n', 'No', 'no']:
+        print("\nNo worries. Let's get our table set up again.\n")
+        return event2_re_request_table_info()
+    else:
+        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        event3_table_confirmation()
+
+def event3_table_confirmation() -> bool:
+    """
+    If user wants to proceed, return True.
+    Else, loop back to the player_count request.
+    """
+    ans = input("Proceed with these settings? (y/n) ")
+    if ans in ['Y', 'y', 'Yes', 'yes', '']:
+        print("\nLet's begin! Enjoy responsibly.\n")
+        return True
+    elif ans in ['N', 'n', 'No', 'no']:
+        print("\nNo worries. Let's get our table set up again.\n")
+        return False
+    else:
+        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        event3_table_confirmation()
+
+def event4_init_user_player() -> Player:
+    """
+    Init and return the user `Player` instance.
     """
     pass
 
-
-class Ai():
+def event5_init_cpu_players() -> list[Player]:
     """
+    Init and return a list of CPU `Player` instances.
     """
     pass
+
+def event6_init_dealer() -> Dealer:
+    """
+    Init and return an instance of `Dealer`.
+    """
+    pass
+
+def event7_init_poker_table() -> PokerTable:
+    """
+    Init and return an instance of `PokerTable`.
+    """
+    pass
+
+# As a coding exercise, limit yourself only to these functions above.
+# The rest of the code should be as "procedural" as you can help it to be, by
+# using the variables  
+#     This is the fun part. Get the functions implemented and over with.
 
 
 def proj_8():
@@ -165,17 +281,35 @@ def proj_8():
     -------------------------
     Keep it simple, stupid.
     """
-    print('\n---------------DeBuG---------------Scope-------proj_8()\n')
-    print("\nWelcome to Project_8: Texas Hold'em, by proj_Studio.")
-    print("--v0.0.2\n")
-    print("The game will be Texas Hold'em style poker. Let's get ready to play!\n")
+    # +----------------------------------------------------------------------+
+    # |                                                                      |
+    # |   TODO: Implement credential system & prompt user authentication.    |
+    # |                                                                      |
+    # +----------------------------------------------------------------------+
 
+    event1_print_welcome_msg()
 
-    # +-------------------------------------------------------------------+
-    # |                                                                   |
-    # |  TODO: Implement credential system & prompt user authentication.  |
-    # |                                                                   |
-    # +-------------------------------------------------------------------+
+    (
+    username,
+    player_count,
+    min_buyin,
+    min_bet
+    ) = event2_request_table_info()
+
+    if not event3_table_confirmation():
+        (
+        username,
+        player_count,
+        min_buyin,
+        min_bet
+        ) = event2_re_request_table_info()
+
+    # print(username, player_count, min_buyin, min_bet)
+
+    event4_init_user_player()
+    event5_init_cpu_players()
+    event6_init_dealer()
+    event7_init_poker_table()
 
 
     # def shuffle_deck(self)
@@ -212,8 +346,23 @@ def proj_8():
 
 
 if __name__ == '__main__':
-    proj_8()
-    sys.exit()
+    import doctest; doctest.testmod()
+    try:
+        proj_8()
+    except KeyboardInterrupt:
+        sys.exit("\n\n[[ Exiting Game ]]\n\nHave a nice day! Remember: Learn to forgive yourself.\n")
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def proj_8_ARCHIVED_ON_AUGUST_23_2023():
@@ -275,7 +424,7 @@ def proj_8_ARCHIVED_ON_AUGUST_23_2023():
     print("Players:")
     print(f"    player_1: {username} (You)")
     for n in range(min(10, num_players) - 1):
-        print(f"    ai_{n + 2}: {ai_list[n]}")
+        print(f"    ai_{n + 2}: {ai_names[n]}")
     print()
     print(f"Minimum buy-in amount:\n    ${min_buy_in}\n")
     print(f"Minimum bet amount:\n    ${min_bet}")
@@ -287,7 +436,7 @@ def proj_8_ARCHIVED_ON_AUGUST_23_2023():
         ready_to_proceed = True
     elif temp_str in ['n', 'N', 'no', 'No']:
         ready_to_proceed = False
-    
+
     # Event: User answer to confirmation prompt.
     if not ready_to_proceed:
         print('\nyou must train harder son\n')
@@ -308,7 +457,7 @@ def proj_8_ARCHIVED_ON_AUGUST_23_2023():
     # Event: Assign the dealer
     #TODO: Write logic for assigning dealer duties
     print("\nexit game\n")
-    
+
     # Event: Blind bets (to the dealer's left: small blind, big blind)
     # Event: Dealer deals 2 hole cards to each player, starting w/ one card
     #        each & from the dealer's left
