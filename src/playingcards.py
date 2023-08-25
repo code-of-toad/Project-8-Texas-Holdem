@@ -316,12 +316,12 @@ class Deck():
 
     def shuffle(self) -> Deck:
         """
-        Shuffle the deck in place, and return this newly-shuffled `CardDeck`
+        Shuffle the deck in place, and return this newly-shuffled `Deck`
         object.
 
-        Note that this method does NOT instantiate new CardDeck objects. The
-        caller of this method will be the same object as the `CardDeck`
-        instance that is returned.
+        Note that this method does NOT instantiate new `Deck` objects. The
+        caller of this method will be the same object as the `Deck` instance
+        that is returned.
         """
         rand.shuffle(self._deck)
         return self
