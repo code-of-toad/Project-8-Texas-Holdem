@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any, Optional, Union
 from pprint import pprint
 from random import randint
+from enum import Enum, auto
 import random as rand
 import sys
 
@@ -18,6 +19,8 @@ from playingcards import Card, Deck
 
 class Ann:
     """
+    Proj_ Assistant
+    ---------------
     Dev assistant that carries cool constants and static methods.
     """
     SUITS_EMJ: tuple = ('♠', '♥', '♦', '♣')
@@ -25,19 +28,31 @@ class Ann:
     VALID_RANKS: tuple = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 255)
     RANKS_NO_JOKERS: tuple = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)
     STANDARD_DECK_EMJ: dict = {'♠': RANKS_NO_JOKERS,
-                            '♥': RANKS_NO_JOKERS,
-                            '♦': RANKS_NO_JOKERS,
-                            '♣': RANKS_NO_JOKERS}
+                               '♥': RANKS_NO_JOKERS,
+                               '♦': RANKS_NO_JOKERS,
+                               '♣': RANKS_NO_JOKERS}
     STANDARD_DECK_STR: dict = {'Spades': RANKS_NO_JOKERS,
-                            'Hearts': RANKS_NO_JOKERS,
-                            'Diamonds': RANKS_NO_JOKERS,
-                            'Clubs': RANKS_NO_JOKERS}
+                               'Hearts': RANKS_NO_JOKERS,
+                               'Diamonds': RANKS_NO_JOKERS,
+                               'Clubs': RANKS_NO_JOKERS}
     AI_NAMES = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
                 'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
                 'Monkey', 'neand69', 'ManBearPig', 'Team-O', 'j0ker',
                 'Bavid Dlaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey',
                 'Sill Wmith', 'a bicycle', 'a unicycle', '뛰는놈', '나는놈',
                 '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
+    class POKER_HANDS_RANKING(Enum):
+        ROYAL_FLUSH = 10
+        STRAIGHT_FLUSH = 9
+        FULL_HOUSE = 8
+        FLUSH = 7
+        STRAIGHT = 6
+        FOUR_OF_A_KIND = 5
+        THREE_OF_A_KIND = 4
+        TWO_PAIRS = 3
+        ONE_PAIR = 2
+        HOLE_CARD = 1
+
     
     @staticmethod
     def shuffle_ai_names() -> list[str]:
@@ -66,6 +81,15 @@ class Player:
     is_hum: bool
     is_cpu: bool
 
+    class Choice(Enum):
+        BET: auto()
+        RAISE: auto()
+        CALL: auto()
+        CHECK: auto()
+        FOLD: auto()
+        SHOW: auto()
+        MUCK: auto()
+
     def __init__(self,
                  username: str,
                  stack: int,
@@ -84,27 +108,6 @@ class Player:
 
     def __repr__(self) -> str:
         return self.username
-    
-    def bet(self) -> None:
-        pass
-    
-    def raise_(self) -> None:
-        pass
-
-    def call(self) -> None:
-        pass
-
-    def check(self) -> None:
-        pass
-
-    def fold(self) -> None:
-        pass
-
-    def show(self) -> None:
-        pass
-
-    def muck(self) -> None:
-        pass
 
 
 class PokerGame:
@@ -116,6 +119,8 @@ class PokerGame:
     _burn_cards: list[Card]
     _comm_cards: list[Card]
     # Game Info
+    _curr_bet: int
+    _i_turn: int  # the index of the `Player` who is next to take action
     _players_remaining: int  # decrement everytime a player folds; reset at end
     _total_seats: int  # decrement everytime a player cashes out of the table
     _big_blind: int
@@ -136,6 +141,8 @@ class PokerGame:
         self._burn_cards = []
         self._comm_cards = []
         # Game Info
+        self._curr_bet = min_bet
+        self._i_turn = 0
         self._players_remaining = len(players_list)
         self._total_seats = len(players_list)
         self._big_blind = min_bet
@@ -151,26 +158,26 @@ class PokerGame:
         for i, player in enumerate(players):
             print(f"P{i}: {player.username}\n{player.username}'s stack = ${player.stack}\n")
 
-    def e1_post_min_bet(self):
+    def e1_blind_bet(self):
+        print('============== BLIND BET ==============\n\n')
         # EZ-Variables
         dealer: Dealer = self._dealer
         p1: Player = self._players_queue[0]
         p2: Player = self._players_queue[1]
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
-        pot: int = self._pot
         # P1
         print(f'{dealer.name}: {p1} posted a small blind of ${sml_blind}.')
         p1.stack -= sml_blind
-        pot += sml_blind
+        self._pot += sml_blind
         # P2
         print(f'{dealer.name}: {p2} posted a small blind of ${big_blind}.\n')
         p2.stack -= big_blind
-        pot += big_blind
+        self._pot += big_blind
         # Print Pot
-        print(f"Pot = ${pot}\n")
+        print(f"Pot = ${self._pot}\n")
 
-    def e2_deal_cards(self):
+    def e2_deal_pocket(self):
         """
         ***IMPORTANT***
         ===============
@@ -185,17 +192,71 @@ class PokerGame:
         if num_p == 2:
             pass   #TODO
         # Deal Cards
-        i = 0
-        while i < 2:
+        while self._i_turn < 2:
             # Deal card one at a time, starting from the dealer's left.
             for player in players:
                 player.hole_cards.append(dealer.draw())
-            i += 1
+            # Update `_i_turn`
+            self._i_turn += 1
         # Print the user's current hole cards.
         for player in players:
             if player.is_hum:
                 print(f"Your Cards: {player.hole_cards}\n")
+    
+    def e3_preflop(self):
+        print('============== PRE-FLOP ==============\n\n')
+        # EZ-Variables
+        old_i_turn: int = self._i_turn
+        # `self._curr_bet`  <---  Update/access this attribute directly as needed.
+        players: list[Player] = self._players_queue
+        num_p: int = self._total_seats
+        # Edge Case: 1v1
+        if num_p == 2:
+            pass   #TODO
+        # Betting Round: Pre-Flop
+        # =======================
+        # TODO: Write `_handle_turn_order_preflop`, a recursive helper that
+        #       handles all player calls, raises, and folds until every player
+        #       has called or folded. It should return the amount to accumulate
+        #       into the pot.
+        self._i_turn, new_i_turn, add_to_pot = self._handle_turn_order_preflop(num_p, old_i_turn, players)
+        self._i_turn = new_i_turn
+        self._pot += add_to_pot
+        print(f"Pot = ${self._pot}\n")
+    def _handle_turn_order_preflop(self, num_p, old_i_turn, players) -> tuple[int, int, int]:
+        pass   #TODO
 
+    def e4_deal_flop(self):
+        pass
+
+    def e5_flop(self):
+        pass
+
+    def e6_deal_turn(self):
+        pass
+
+    def e7_turn(self):
+        pass
+
+    def e8_deal_river(self):
+        pass
+
+    def e9_river(self):
+        pass
+
+    def e10_showdown(self):
+        pass
+
+    def e11_reward_winner(self):
+        pass
+
+    def e12_save_data(self):
+        pass
+
+    def e13_shift_order(self):
+        pass
+
+ 
 
 def config_table_settings() -> tuple[str, int, int, int]:
     """
@@ -259,7 +320,7 @@ def run():
     # =============
     print("\nFrom proj_Studio,\nWelcome to Project_8: Texas Hold'em, v0.0.3.")
     print("\nNote: Press 'ctrl + c' to exit the game at any time.\n")
-    print("\nAnn: The game will be Texas Hold'em style poker. Let's get ready to play!\n")
+    print("\nThe game will be Texas Hold'em style poker. Let's get ready to play!\n")
 
     (
     username,
@@ -296,17 +357,20 @@ def run():
     # Poker Events
     # ============
     poker.e0_show_player_stats()
-    poker.e1_post_min_bet()
-    poker.e2_deal_cards()
-    # poker.e3_bet_blind()
+    poker.e1_blind_bet()
+    poker.e2_deal_pocket()
+    poker.e3_preflop()
     # poker.e4_deal_flop()
-    # poker.e5_bet_flop()
+    # poker.e5_flop()
     # poker.e6_deal_turn()
-    # poker.e7_bet_turn()
+    # poker.e7_turn()
     # poker.e8_deal_river()
-    # poker.e9_bet_river()
+    # poker.e9_river()
     # poker.e10_showdown()
-    # poker.e11_shift_order()
+    # poker.e11_reward_winner()
+    # poker.e12_save_data()
+    # poker.e13_shift_order()
+
     # And... Repeat.
 
 
