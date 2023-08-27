@@ -139,6 +139,7 @@ def run():
 
     pprint(f'{username}, {player_count}, {buyin_amt}, {min_bet}, {TABLE_CONFIRMED}')
 
+
     # "Client Code" Factory
     # =====================
     p_user = gen_user_player(username, buyin_amt)
@@ -154,8 +155,6 @@ def run():
 
     # Begin Hand
     # ==========
-
-
 
 
     # Reset Poker Hand Structure
