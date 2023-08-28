@@ -53,7 +53,6 @@ class Ann:
         PAIR = 2
         HIGH_CARD = 1
 
-    
     @staticmethod
     def shuffle_ai_names() -> list[str]:
         rand.shuffle(Ann.AI_NAMES)
@@ -101,6 +100,7 @@ class Player:
         # Player Info
         self.username = username
         self.stack = stack
+        self.last_bet = 0
         self.is_hum = is_hum
         self.is_cpu = not is_hum
     
@@ -133,10 +133,14 @@ class PokerGame:
                  players_list: list[Player],
                  min_bet: int,
                  buyin_amt: int) -> None:
+        # Copy Mutable Params
+        players_list_1 = players_list.copy()
+        players_list_2 = players_list.copy()
         # Active "Participants"
         self._dealer = dealer
-        self._players_queue = players_list
-        self._next_game_players_queue = players_list.insert(players_list.pop(), 0)
+        self._players_queue = players_list_1
+        players_list_2.append(players_list_2.pop(0))
+        self._next_game_players_queue = players_list_2
         # Physical Aspects
         self._pot = 0
         self._burn_cards = []
@@ -167,12 +171,14 @@ class PokerGame:
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
         # P1
-        print(f'{dealer.name}: {p0} posted a small blind bet of ${sml_blind}.')
+        print(f"{dealer.name}: '{p0}' posted a small blind bet of ${sml_blind}.")
         p0.stack -= sml_blind
+        p0.last_bet = sml_blind
         self._pot += sml_blind
         # P2
-        print(f'{dealer.name}: {p1} posted a big blind bet of ${big_blind}.\n')
+        print(f"{dealer.name}: '{p1}' posted a big blind bet of ${big_blind}.\n")
         p1.stack -= big_blind
+        p1.last_bet = big_blind
         self._pot += big_blind
         # Print Pot
         print(f"Pot = ${self._pot}\n")
@@ -215,7 +221,7 @@ class PokerGame:
         # Call iterative turn handler
         self._turn_order_preflop(players)
         # Print Pot
-        print(f"Pot = ${self._pot}\n")
+        print(f"\n Pre-Flop Pot = ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
         # EZ-Variables
@@ -225,21 +231,19 @@ class PokerGame:
         caller_count = 0
         i = 2
         while caller_count < len(players):
-            # Print Pot
-            print(f"Pot = ${self._pot}\n")
             # Valid Index Check
-            if i == len(self._players_queue):
+            if i == len(players):
                 i = 0
             # Player
-            p = self._players_queue[i]
+            p = players[i]
 
             # Human Player Turn:
             if p.is_hum:
-                # Ask user for decision.
-                player_choice = input(f"{dealer}: {p.username}, will you [c]all, [r]aise, or [f]old? ")
                 # Invalid Input Check:
                 while True:
-                    if player_choice in ['Call', 'call', 'C', 'c', 'CALL']:
+                    # Ask user for decision.
+                    player_choice = input(f"{dealer}: '{p.username}', will you [c]all, [r]aise, or [f]old? ")
+                    if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                         ans = 'CALL'
                         break
                     elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
@@ -254,8 +258,13 @@ class PokerGame:
                 if ans ==  p.Choice.CALL.name:
                     # Adjust Attributes
                     caller_count += 1
+                    self._pot += self._curr_bet - p.last_bet
+                    p.stack -= self._curr_bet - p.last_bet
+                    p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print(f"'{p.username}': call.")
+                    print(f"{p.username}: call.")
+                    # Print Pot
+                    print(f"Pot = ${self._pot}\n")
 
                 # elif player RAISES:
                 elif ans == p.Choice.RAISE.name:
@@ -264,21 +273,24 @@ class PokerGame:
                         raise_amt = input(f"\nCurrent Minimum Bet: ${self._curr_bet}. What will you raise the bet to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
                             break
-                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).")
+                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
                     # Adjust Attributes & Variables
                     old_bet = self._curr_bet
-                    caller_count = 0
-                    self._pot += int(raise_amt)
+                    caller_count = 1
+                    p.stack -= int(raise_amt) - old_bet
+                    self._pot += int(raise_amt) - old_bet
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print(f"{dealer}: '{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.")
+                    print(f"\n'{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.\n")
+                    # Print Pot
+                    print(f"Pot = ${self._pot}\n")
 
                 # elif player FOLDS:
                 elif ans == p.Choice.FOLD.name:
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(f"{dealer}: '{p.username}' has folded.")
+                    print(f"{dealer}: '{p.username}' has folded.\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -287,7 +299,15 @@ class PokerGame:
                 # |  Replace this `elif` branch later when the CPU player  |
                 # |           algorithm has been implemented.              |
                 # +--------------------------------------------------------+
-                pass
+                # Adjust Attributes
+                caller_count += 1
+                self._pot += self._curr_bet - p.last_bet
+                p.stack -= self._curr_bet - p.last_bet
+                p.last_bet = self._curr_bet
+                # Annouce Player Action 
+                print(f"{p.username}: call.")
+                # Print Pot
+                print(f"Pot = ${self._pot}\n")
                 # +--------------------------------------------------------+
                 # |                       #TODO:                           |
                 # |  Replace this `elif` branch later when the CPU player  |
@@ -434,6 +454,7 @@ def run():
     poker.e2_deal_pocket()
     print("\n============== PRE-FLOP ==============\n")
     poker.e3_preflop()
+    print('NOOIIIIIIIIIICEEEEEEEEEEEEEEEEEEEEE\n')
     # poker.e4_deal_flop()
     # poker.e5_flop()
     # poker.e6_deal_turn()
