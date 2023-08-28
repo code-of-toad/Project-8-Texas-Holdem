@@ -6,6 +6,7 @@ from typing import Any, Optional, Union
 from pprint import pprint
 from random import randint
 from enum import Enum, auto
+from colorama import Fore, Back, Style, init
 import random as rand
 import sys
 
@@ -197,7 +198,7 @@ class PokerGame:
             if p.is_hum:
                 hole_1 = p.hole_cards[0]
                 hole_2 = p.hole_cards[1]
-                print(f"Your Cards:\n-----------\n  {hole_1}\n  {hole_2}\n")
+                print(Back.WHITE + Fore.WHITEf"Your Cards:\n-----------\n  {hole_1}\n  {hole_2}\n")
     
     def e3_preflop(self):
         # EZ-Variables
@@ -246,7 +247,7 @@ class PokerGame:
                     elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                         ans = 'FOLD'
                         break
-                    print("Invalid input: Enter 'c', 'r', or 'f'.")
+                    print("Invalid input: Enter 'c', 'r', or 'f'.", file=sys.stderr)
 
                 # if player CALLS:
                 if ans ==  p.Choice.CALL.name:
@@ -267,7 +268,7 @@ class PokerGame:
                         raise_amt = input(f"\nCurrent Minimum Bet: ${self._curr_bet}. What will you raise the bet to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
                             break
-                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n", file=sys.stderr)
                     # Adjust Attributes & Variables
                     old_bet = self._curr_bet
                     caller_count = 1
@@ -363,7 +364,7 @@ def config_table_settings() -> tuple[str, int, int, int]:
         print("\nNo worries. Let's get our table set up again.\n")
         return config_table_settings()
     else:
-        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n", file=sys.stderr)
         table_confirm()
 
 def table_confirm() -> bool:
@@ -379,7 +380,7 @@ def table_confirm() -> bool:
         print("\nNo worries. Let's get our table set up again.\n")
         return False
     else:
-        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n", file=sys.stderr)
         return table_confirm()
 
 def gen_user_player(username: str, stack: int) -> Player:
