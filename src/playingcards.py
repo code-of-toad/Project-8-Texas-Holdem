@@ -7,9 +7,11 @@ from __future__ import annotations
 from typing import Optional, Any, Union
 from pprint import pprint
 from dataclasses import dataclass
+from colorama import Style, Fore, Back, init
 import random as rand
 
 
+init(autoreset=True)   # Automatically reset colorama print attribute changes
 
 RANK_MAP_STR: dict[int, str] = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5',
                                 6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
