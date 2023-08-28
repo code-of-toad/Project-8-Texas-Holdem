@@ -41,7 +41,7 @@ class Ann:
     AI_NAMES = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
                 'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
                 'Monkey', 'ManBearPig', 'Team-O', 'j0ker', 'Mr. White',
-                'David Dlaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey', 'Mrs. Lemon',
+                'bavid blaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey', 'Mrs. Lemon',
                 'Will Wmith', 'Bike', 'Unicycle', '뛰는놈', '나는놈', 'Mr. 8east',
                 '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
     class POKER_HANDS_RANKING(Enum):
@@ -185,7 +185,7 @@ class PokerGame:
         p1.last_bet = big_blind
         self._pot += big_blind
         # Print Pot
-        print(f"Pot = ${self._pot}\n")
+        print(Fore.GREEN + f"Pot = ${self._pot}\n")
 
     def e2_deal_pocket(self):
         # EZ-Variables
@@ -204,26 +204,24 @@ class PokerGame:
                 print("Your cards:\n-----------\n\n  ", end='')
                 if hole_1.get_suit() in ['Spades', 'Clubs']:
                     print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_1} ", end='')
-                    print(Style.RESET_ALL)  # Manually reset to default
                     if hole_2.get_suit() in ['Spades', 'Clubs']:
                         print("  ", end='')
                         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
-                        print(Style.RESET_ALL)  # Manually reset to default
+                        print()
                     else:
                         print("  ", end='')
                         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
-                        print(Style.RESET_ALL)  # Manually reset to default
+                        print()
                 else:
                     print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_1} ", end='')
-                    print(Style.RESET_ALL)  # Manually reset to default
                     if hole_2.get_suit() in ['Spades', 'Clubs']:
                         print("  ", end='')
                         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
-                        print(Style.RESET_ALL)  # Manually reset to default
+                        print()
                     else:
                         print("  ", end='')
                         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
-                        print(Style.RESET_ALL)  # Manually reset to default
+                        print()
 
     def e3_preflop(self):
         # EZ-Variables
@@ -241,7 +239,7 @@ class PokerGame:
         # Call iterative turn handler
         self._turn_order_preflop(players)
         # Print Pot
-        print(f"\nPot (Pre-Flop) = ${self._pot}\n")
+        print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
         # EZ-Variables
@@ -272,7 +270,7 @@ class PokerGame:
                     elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                         ans = 'FOLD'
                         break
-                    print("Invalid input: Enter 'c', 'r', or 'f'.", file=sys.stderr)
+                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
                 # if player CALLS:
                 if ans ==  p.Choice.CALL.name:
@@ -284,7 +282,7 @@ class PokerGame:
                     # Annouce Player Action 
                     print(f"{p.username}: call.")
                     # Print Pot
-                    print(f"Pot = ${self._pot}\n")
+                    print(f"Pot: ${self._pot}\n")
 
                 # elif player RAISES:
                 elif ans == p.Choice.RAISE.name:
@@ -293,7 +291,7 @@ class PokerGame:
                         raise_amt = input(f"\nCurrent Minimum Bet: ${self._curr_bet}. What will you raise the bet to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
                             break
-                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n", file=sys.stderr)
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).")
                     # Adjust Attributes & Variables
                     old_bet = self._curr_bet
                     caller_count = 1
@@ -303,7 +301,7 @@ class PokerGame:
                     # Annouce Player Action 
                     print(f"\n'{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
-                    print(f"Pot = ${self._pot} (Your current stack: ${p.stack})\n")
+                    print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
 
                 # elif player FOLDS:
                 elif ans == p.Choice.FOLD.name:
@@ -327,7 +325,7 @@ class PokerGame:
                 # Annouce Player Action 
                 print(f"{p.username}: call.")
                 # Print Pot
-                print(f"Pot = ${self._pot}\n")
+                print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
                 # |                       #TODO:                           |
                 # |  Replace this `elif` branch later when the CPU player  |
@@ -389,7 +387,7 @@ def config_table_settings() -> tuple[str, int, int, int]:
         print("\nNo worries. Let's get our table set up again.\n")
         return config_table_settings()
     else:
-        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n", file=sys.stderr)
+        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
         table_confirm()
 
 def table_confirm() -> bool:
@@ -405,7 +403,7 @@ def table_confirm() -> bool:
         print("\nNo worries. Let's get our table set up again.\n")
         return False
     else:
-        print("Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n", file=sys.stderr)
+        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
         return table_confirm()
 
 def gen_user_player(username: str, stack: int) -> Player:
