@@ -203,26 +203,26 @@ class PokerGame:
                 hole_2 = p.hole_cards[1]
                 print("Your cards:\n-----------\n\n  ", end='')
                 if hole_1.get_suit() in ['Spades', 'Clubs']:
-                    print(Back.WHITE + Fore.BLACK + f" {hole_1} ", end='')
+                    print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_1} ", end='')
                     print(Style.RESET_ALL)  # Manually reset to default
                     if hole_2.get_suit() in ['Spades', 'Clubs']:
                         print("  ", end='')
-                        print(Back.WHITE + Fore.BLACK + f" {hole_2} ")
+                        print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
                         print(Style.RESET_ALL)  # Manually reset to default
                     else:
                         print("  ", end='')
-                        print(Back.WHITE + Fore.RED + f" {hole_2} ")
+                        print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
                         print(Style.RESET_ALL)  # Manually reset to default
                 else:
-                    print(Back.WHITE + Fore.RED + f" {hole_1} ", end='')
+                    print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_1} ", end='')
                     print(Style.RESET_ALL)  # Manually reset to default
                     if hole_2.get_suit() in ['Spades', 'Clubs']:
                         print("  ", end='')
-                        print(Back.WHITE + Fore.BLACK + f" {hole_2} ")
+                        print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
                         print(Style.RESET_ALL)  # Manually reset to default
                     else:
                         print("  ", end='')
-                        print(Back.WHITE + Fore.RED + f" {hole_2} ")
+                        print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
                         print(Style.RESET_ALL)  # Manually reset to default
 
     def e3_preflop(self):
