@@ -44,14 +44,14 @@ class Ann:
     class POKER_HANDS_RANKING(Enum):
         ROYAL_FLUSH = 10
         STRAIGHT_FLUSH = 9
-        FULL_HOUSE = 8
-        FLUSH = 7
-        STRAIGHT = 6
-        FOUR_OF_A_KIND = 5
+        FOUR_OF_A_KIND = 8
+        FULL_HOUSE = 7
+        FLUSH = 6
+        STRAIGHT = 5
         THREE_OF_A_KIND = 4
-        TWO_PAIRS = 3
-        ONE_PAIR = 2
-        HOLE_CARD = 1
+        TWO_PAIR = 3
+        PAIR = 2
+        HIGH_CARD = 1
 
     
     @staticmethod
@@ -73,22 +73,23 @@ class Dealer:
 
 class Player:
     # Player Cards
-    # curr_hand: list[Card, Card, Card, Card, Card]
     hole_cards: list[Card, Card]
+    # curr_hand: list[Card, Card, Card, Card, Card]
     # Player Info
     username: str
     stack: int
+    last_bet: int
     is_hum: bool
     is_cpu: bool
-
+    # Player Choices
     class Choice(Enum):
-        BET: auto()
-        RAISE: auto()
-        CALL: auto()
-        CHECK: auto()
-        FOLD: auto()
-        SHOW: auto()
-        MUCK: auto()
+        BET = 'b'
+        RAISE = 'r' 
+        CALL = 'c'
+        CHECK = 'k'
+        FOLD = 'f'
+        SHOW = 's'
+        MUCK ='m'
 
     def __init__(self,
                  username: str,
@@ -113,16 +114,15 @@ class Player:
 class PokerGame:
     # Active "Participants"
     _dealer: Dealer
-    _players_queue: list[Player]
+    _players_queue: list[Player]  # When game is over, replace this w/ the one below.
+    _next_game_players_queue: list[Player]  # Remove players ONLY when one exits the table.
     # Physical Aspects
     _pot: int
     _burn_cards: list[Card]
     _comm_cards: list[Card]
     # Game Info
     _curr_bet: int
-    _i: int  # the index of the `Player` who is next to take action
-    _players_remaining: int  # decrement everytime a player folds; reset at end
-    _total_seats: int  # decrement everytime a player cashes out of the table
+    # _total_seats: int  # decrement everytime a player cashes out
     _big_blind: int
     _sml_blind: int
     _buyin_amt: int
@@ -136,14 +136,13 @@ class PokerGame:
         # Active "Participants"
         self._dealer = dealer
         self._players_queue = players_list
+        self._next_game_players_queue = players_list.insert(players_list.pop(), 0)
         # Physical Aspects
         self._pot = 0
         self._burn_cards = []
         self._comm_cards = []
         # Game Info
         self._curr_bet = min_bet
-        self._i = 0
-        self._players_remaining = len(players_list)
         self._total_seats = len(players_list)
         self._big_blind = min_bet
         self._sml_blind = min_bet // 2
@@ -163,17 +162,17 @@ class PokerGame:
         print("\n============== BLIND BET ==============\n")
         # EZ-Variables
         dealer: Dealer = self._dealer
-        p1: Player = self._players_queue[0]
-        p2: Player = self._players_queue[1]
+        p0: Player = self._players_queue[0]
+        p1: Player = self._players_queue[1]
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
         # P1
-        print(f'{dealer.name}: {p1} posted a small blind bet of ${sml_blind}.')
-        p1.stack -= sml_blind
+        print(f'{dealer.name}: {p0} posted a small blind bet of ${sml_blind}.')
+        p0.stack -= sml_blind
         self._pot += sml_blind
         # P2
-        print(f'{dealer.name}: {p2} posted a big blind bet of ${big_blind}.\n')
-        p2.stack -= big_blind
+        print(f'{dealer.name}: {p1} posted a big blind bet of ${big_blind}.\n')
+        p1.stack -= big_blind
         self._pot += big_blind
         # Print Pot
         print(f"Pot = ${self._pot}\n")
@@ -186,43 +185,116 @@ class PokerGame:
         accordingly.
         """
         # EZ-Variables
-        num_p: int = self._total_seats
         dealer: Dealer = self._dealer
         players: list[Player] = self._players_queue
-        # Edge Case: 1v1
-        if num_p == 2:
-            pass   #TODO
         # Deal Cards
-        while self._i < 2:
+        for _ in range(2):
             # Deal card one at a time, starting from the dealer's left.
-            for player in players:
-                player.hole_cards.append(dealer.draw())
-            # Update `_i_turn`
-            self._i += 1
+            for p in players:
+                p.hole_cards.append(dealer.draw())
         # Print the user's current hole cards.
-        for player in players:
-            if player.is_hum:
-                print("\n============== DEALER: HOLE CARDS ==============\n")
-                print(f"Your Cards:\n-----------\n  {player.hole_cards[0]}\n  {player.hole_cards[1]}\n\n")
+        for p in players:
+            if p.is_hum:
+                hole_1 = p.hole_cards[0]
+                hole_2 = p.hole_cards[1]
+                print(f"Your Cards:\n-----------\n  {hole_1}\n  {hole_2}\n")
     
     def e3_preflop(self):
-        print("============== PRE-FLOP ==============\n")
         # EZ-Variables
-        # `self._curr_bet`  <---  Update/access this attribute directly as needed.
-        old_i: int = self._i
         players: list[Player] = self._players_queue
         num_p: int = self._total_seats
         # Edge Case: 1v1
         if num_p == 2:
             pass   #TODO
         # Betting Round: Pre-Flop
-        # =======================
-        # TODO: Write `_handle_turn_order_preflop`, a recursive helper that
+        # ====================================================================
+        # TODO: Write `_handle_turn_order_preflop`, an iterative helper that
         #       handles all player calls, raises, and folds until every player
         #       has called or folded. Figure it out.
-        print('* NOT IMPLEMENTED *\n\n')
-    def _handle_turn_order_preflop(self):
-        pass   #TODO
+        # ====================================================================
+        # Call iterative turn handler
+        self._turn_order_preflop(players)
+        # Print Pot
+        print(f"Pot = ${self._pot}\n")
+
+    def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
+        # EZ-Variables
+        dealer: str = self._dealer.name
+        old_bet: int = self._curr_bet
+        # Go thru each player, and continue until every player has called/folded.
+        caller_count = 0
+        i = 2
+        while caller_count < len(players):
+            # Print Pot
+            print(f"Pot = ${self._pot}\n")
+            # Valid Index Check
+            if i == len(self._players_queue):
+                i = 0
+            # Player
+            p = self._players_queue[i]
+
+            # Human Player Turn:
+            if p.is_hum:
+                # Ask user for decision.
+                player_choice = input(f"{dealer}: {p.username}, will you [c]all, [r]aise, or [f]old? ")
+                # Invalid Input Check:
+                while True:
+                    if player_choice in ['Call', 'call', 'C', 'c', 'CALL']:
+                        ans = 'CALL'
+                        break
+                    elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
+                        ans = 'RAISE'
+                        break
+                    elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                        ans = 'FOLD'
+                        break
+                    print("Invalid input: Enter 'c', 'r', or 'f'.")
+
+                # if player CALLS:
+                if ans ==  p.Choice.CALL.name:
+                    # Adjust Attributes
+                    caller_count += 1
+                    # Annouce Player Action 
+                    print(f"'{p.username}': call.")
+
+                # elif player RAISES:
+                elif ans == p.Choice.RAISE.name:
+                    # Invalid Input Check:
+                    while True:
+                        raise_amt = input(f"\nCurrent Minimum Bet: ${self._curr_bet}. What will you raise the bet to? $")
+                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
+                            break
+                        print(f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).")
+                    # Adjust Attributes & Variables
+                    old_bet = self._curr_bet
+                    caller_count = 0
+                    self._pot += int(raise_amt)
+                    self._curr_bet = int(raise_amt)
+                    # Annouce Player Action 
+                    print(f"{dealer}: '{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.")
+
+                # elif player FOLDS:
+                elif ans == p.Choice.FOLD.name:
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(f"{dealer}: '{p.username}' has folded.")
+
+            # CPU Player Turn:
+            elif p.is_cpu:
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+                pass
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+            # Close While-Loop
+            i += 1
 
     def e4_deal_flop(self):
         pass
@@ -330,8 +402,9 @@ def run():
         (
         username,
         player_count,     #TODO: Implement a recursive input babysitter.
-        buyin_amt,        #      This code is faulty. There's no recursion
-        min_bet,          #      happening here, currently.
+        buyin_amt,        #      This code is faulty. Currently, there's no
+        min_bet,          #      recursion happening here, currently. It breaks
+                          #      after two complete init prompt cycles.
         TABLE_CONFIRMED
         ) = config_table_settings()
     # print(f'{username}, {player_count}, {buyin_amt}, {min_bet}, {TABLE_CONFIRMED}')
@@ -348,11 +421,18 @@ def run():
     # ===============
     poker = PokerGame(dealer, players_list, min_bet, buyin_amt)
 
+    # DEBUGGGGGGGGGGGGGGGGG
+    # =====================
+    print(poker._players_queue)
+    print(poker._next_game_players_queue)
+
     # Poker Events
     # ============
     poker.e0_show_player_stats()
     poker.e1_blind_bet()
+    print("\n============== DEALER: HOLE CARDS ==============\n")
     poker.e2_deal_pocket()
+    print("\n============== PRE-FLOP ==============\n")
     poker.e3_preflop()
     # poker.e4_deal_flop()
     # poker.e5_flop()
@@ -382,3 +462,4 @@ if __name__ == '__main__':
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
     run()
+    # print(Player.Choice.BET.name == 'BET')
