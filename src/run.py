@@ -159,20 +159,17 @@ class PokerGame:
 
     def e0_show_player_stats(self):
         # Introduce the dealer!
-        print("============== PROJ_8: TEXAS HOLD'EM ==============\n")
         print(f"The dealer of this poker table is: ", end='')
         print(Fore.LIGHTMAGENTA_EX + f"{self._dealer.name}", end='')
         print(".\n\n")
-        # EZ-Variables
+        # Introduce the players!
         players: list[Player] = self._players_queue
-        for i, player in enumerate(players):
-            print(f"p{i}: ", end='')
+        for player in players:
             print(Fore.CYAN + f"{player.username}", end='')
             print(f"'s stack = ", end='')
             print(Fore.GREEN + f"${player.stack}\n")
 
     def e1_blind_bet(self):
-        print("\n============== BLIND BET ==============\n")
         # EZ-Variables
         dealer: str = self._dealer.name
         p0: Player = self._players_queue[0]
@@ -357,7 +354,21 @@ class PokerGame:
             i += 1
 
     def e4_deal_flop(self):
-        pass
+        dealer: Dealer = self._dealer
+        burn_cards: list[Card] = self._burn_cards
+        comm_cards: list[Card] = self._comm_cards
+        # Logic
+        burn_cards.append(dealer.draw())
+        for _ in range(3):
+            comm_cards.append(dealer.draw())
+        # Print Dealer ACtion
+        print(
+Fore.LIGHTMAGENTA_EX + f"{dealer.name}" + Style.RESET_ALL + " \
+burns a card & reveals three community cards on the board:\n\
+----------------------------------------------------------------\n")
+        # Show Community Cards
+        
+
 
     def e5_flop(self):
         pass
@@ -459,11 +470,10 @@ def run():
     ) = config_table_settings()
     if not TABLE_CONFIRMED:
         (
-        username,
-        player_count,     #TODO: Implement a recursive input babysitter.
-        buyin_amt,        #      This code is faulty. Currently, there's no
-        min_bet,          #      recursion happening here, currently. It breaks
-                          #      after two complete init prompt cycles.
+        username,         #TODO: Implement a recursive input babysitter.
+        player_count,     #      This code is faulty. Currently, there's no
+        buyin_amt,        #      recursion happening here. It breaks after two
+        min_bet,          #      complete init prompt cycles.
         TABLE_CONFIRMED
         ) = config_table_settings()
     # print(f'{username}, {player_count}, {buyin_amt}, {min_bet}, {TABLE_CONFIRMED}')
@@ -487,15 +497,16 @@ def run():
 
     # Poker Events
     # ============
+    print("\n============== PROJ_8: TEXAS HOLD'EM ==============\n")
     poker.e0_show_player_stats()
+    print("\n============== BLIND BET ==============\n")
     poker.e1_blind_bet()
     print("\n============== DEALER: HOLE CARDS ==============\n")
     poker.e2_deal_pocket()
     print("\n============== PRE-FLOP ==============\n")
     poker.e3_preflop()
     print("\n============== DEALER: FLOP ==============\n")
-    print('\n\n\n')
-    # poker.e4_deal_flop()
+    poker.e4_deal_flop()
     # poker.e5_flop()
     # poker.e6_deal_turn()
     # poker.e7_turn()
@@ -507,13 +518,6 @@ def run():
     # poker.e13_shift_order()
 
     # And... Repeat.
-
-
-    # Begin Hand
-    # ==========
-
-    # Reset Poker Hand Structure
-    # ==========================
 
 
 if __name__ == '__main__':
