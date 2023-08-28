@@ -160,31 +160,43 @@ class PokerGame:
     def e0_show_player_stats(self):
         # Introduce the dealer!
         print("============== PROJ_8: TEXAS HOLD'EM ==============\n")
-        print(f"The dealer of this poker table is '{self._dealer.name}'.\n\n")
+        print(f"The dealer of this poker table is: ", end='')
+        print(Fore.LIGHTMAGENTA_EX + f"{self._dealer.name}", end='')
+        print(".\n\n")
         # EZ-Variables
         players: list[Player] = self._players_queue
         for i, player in enumerate(players):
-            print(f"P{i}: {player.username}\n{player.username}'s stack = ${player.stack}\n")
+            print(f"p{i}: ", end='')
+            print(Fore.CYAN + f"{player.username}", end='')
+            print(f"'s stack = ", end='')
+            print(Fore.GREEN + f"${player.stack}\n")
 
     def e1_blind_bet(self):
         print("\n============== BLIND BET ==============\n")
         # EZ-Variables
-        dealer: Dealer = self._dealer
+        dealer: str = self._dealer.name
         p0: Player = self._players_queue[0]
         p1: Player = self._players_queue[1]
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
         # P1
-        print(f"{dealer.name}: '{p0}' posted a small blind bet of ${sml_blind}.")
+        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+        print(": ", end='')
+        print(Fore.CYAN + f"{p0}", end='')
+        print(f" posted a small blind bet of ${sml_blind}.\n")
         p0.stack -= sml_blind
         p0.last_bet = sml_blind
         self._pot += sml_blind
         # P2
-        print(f"{dealer.name}: '{p1}' posted a big blind bet of ${big_blind}.\n")
+        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+        print(": ", end='')
+        print(Fore.CYAN + f"{p1}", end='')
+        print(f" posted a big blind bet of ${big_blind}.\n")
         p1.stack -= big_blind
         p1.last_bet = big_blind
         self._pot += big_blind
         # Print Pot
+        print()
         print(Fore.GREEN + f"Pot = ${self._pot}\n")
 
     def e2_deal_pocket(self):
@@ -260,7 +272,10 @@ class PokerGame:
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
-                    player_choice = input(f"{dealer}: '{p.username}', will you [c]all, [r]aise, or [f]old? ")
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                     if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                         ans = 'CALL'
                         break
@@ -288,7 +303,8 @@ class PokerGame:
                 elif ans == p.Choice.RAISE.name:
                     # Invalid Input Check:
                     while True:
-                        raise_amt = input(f"\nCurrent Minimum Bet: ${self._curr_bet}. What will you raise the bet to? $")
+                        print(Fore.LIGHTMAGENTA_EX + f"\n{dealer}", end='')
+                        raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
                             break
                         print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).")
@@ -299,7 +315,9 @@ class PokerGame:
                     self._pot += int(raise_amt) - old_bet
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print(f"\n'{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.")
+                    print()
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
 
@@ -308,7 +326,10 @@ class PokerGame:
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(f"{dealer}: '{p.username}' has folded.\n")
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded.\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -323,7 +344,8 @@ class PokerGame:
                 p.stack -= self._curr_bet - p.last_bet
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
-                print(f"{p.username}: call.")
+                print(Fore.CYAN + f"{p.username}", end='')
+                print(f": call.")
                 # Print Pot
                 print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
@@ -364,7 +386,6 @@ class PokerGame:
     def e13_shift_order(self):
         pass
 
- 
 
 def config_table_settings() -> tuple[str, int, int, int]:
     """
@@ -428,7 +449,7 @@ def run():
     # =============
     print("\nFrom proj_Studio,\nWelcome to Project_8: Texas Hold'em, v0.0.3.")
     print("\nNote: Press 'ctrl + c' to exit the game at any time.\n")
-    print("\nThe game will be Texas Hold'em style poker. Let's get ready to play!\n")
+    print(Fore.LIGHTGREEN_EX + "\nThe game will be Texas Hold'em style poker. Let's get ready to play!\n")
     (
     username,
     player_count,
@@ -461,8 +482,8 @@ def run():
 
     # DEBUGGGGGGGGGGGGGGGGG
     # =====================
-    print(poker._players_queue)
-    print(poker._next_game_players_queue, end='\n\n\n')
+    # print(poker._players_queue)
+    # print(poker._next_game_players_queue, end='\n\n\n')
 
     # Poker Events
     # ============
@@ -473,6 +494,7 @@ def run():
     print("\n============== PRE-FLOP ==============\n")
     poker.e3_preflop()
     print("\n============== DEALER: FLOP ==============\n")
+    print('\n\n\n')
     # poker.e4_deal_flop()
     # poker.e5_flop()
     # poker.e6_deal_turn()
