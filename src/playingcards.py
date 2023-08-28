@@ -115,12 +115,8 @@ class Card:
         >>> str(Card(13, 's'))
         'King of Spades'
         """
-        card =  f'{self._rank} of {self._suit}'
-        if self.is_blk():
-            return Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  "
-        elif self.is_red():
-            return Style.BRIGHT + Back.WHITE + Fore.RED + f"  {card}  "
-        # return f"{self._rank} of {self._suit}"
+        return f"{self._rank} of {self._suit}"
+
 
     def __repr__(self) -> str:
         """
@@ -137,11 +133,7 @@ class Card:
         >>> Card(13, 's')
         King of Spades
         """
-        card =  f'{self._rank} of {self._suit}'
-        if self.is_blk():
-            return Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  "
-        elif self.is_red():
-            return Style.BRIGHT + Back.WHITE + Fore.RED + f"  {card}  "
+        return f"{self._rank} of {self._suit}"
     
 
     def __eq__(self, other: Card) -> bool:
