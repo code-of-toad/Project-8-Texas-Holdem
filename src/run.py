@@ -13,6 +13,8 @@ import sys
 from playingcards import Card, Deck
 
 
+init(autoreset=True)
+
 # KEEP IT SIMPLE, STUPID: Write the client code for JUST THE POKER GAME ITSELF.
 # -----------------------
 # Writing good documentation is great. Writing good documentation by yourself
@@ -70,6 +72,7 @@ class Dealer:
     
     def draw(self) -> Card:
         return self.deck.draw()
+
 
 class Player:
     # Player Cards
@@ -198,8 +201,30 @@ class PokerGame:
             if p.is_hum:
                 hole_1 = p.hole_cards[0]
                 hole_2 = p.hole_cards[1]
-                print(Back.WHITE + Fore.WHITEf"Your Cards:\n-----------\n  {hole_1}\n  {hole_2}\n")
-    
+                print("Your cards:\n-----------\n\n  ", end='')
+                if hole_1.get_suit() in ['Spades', 'Clubs']:
+                    print(Back.WHITE + Fore.BLACK + f" {hole_1} ", end='')
+                    print(Style.RESET_ALL)  # Manually reset to default
+                    if hole_2.get_suit() in ['Spades', 'Clubs']:
+                        print("  ", end='')
+                        print(Back.WHITE + Fore.BLACK + f" {hole_2} ")
+                        print(Style.RESET_ALL)  # Manually reset to default
+                    else:
+                        print("  ", end='')
+                        print(Back.WHITE + Fore.RED + f" {hole_2} ")
+                        print(Style.RESET_ALL)  # Manually reset to default
+                else:
+                    print(Back.WHITE + Fore.RED + f" {hole_1} ", end='')
+                    print(Style.RESET_ALL)  # Manually reset to default
+                    if hole_2.get_suit() in ['Spades', 'Clubs']:
+                        print("  ", end='')
+                        print(Back.WHITE + Fore.BLACK + f" {hole_2} ")
+                        print(Style.RESET_ALL)  # Manually reset to default
+                    else:
+                        print("  ", end='')
+                        print(Back.WHITE + Fore.RED + f" {hole_2} ")
+                        print(Style.RESET_ALL)  # Manually reset to default
+
     def e3_preflop(self):
         # EZ-Variables
         players: list[Player] = self._players_queue
