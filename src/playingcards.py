@@ -115,8 +115,12 @@ class Card:
         >>> str(Card(13, 's'))
         'King of Spades'
         """
-        return f'{self._rank} of {self._suit}'
-
+        card =  f'{self._rank} of {self._suit}'
+        if self.is_blk():
+            return Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  "
+        elif self.is_red():
+            return Style.BRIGHT + Back.WHITE + Fore.RED + f"  {card}  "
+        # return f"{self._rank} of {self._suit}"
 
     def __repr__(self) -> str:
         """
@@ -133,7 +137,11 @@ class Card:
         >>> Card(13, 's')
         King of Spades
         """
-        return f'{self._rank} of {self._suit}'
+        card =  f'{self._rank} of {self._suit}'
+        if self.is_blk():
+            return Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  "
+        elif self.is_red():
+            return Style.BRIGHT + Back.WHITE + Fore.RED + f"  {card}  "
     
 
     def __eq__(self, other: Card) -> bool:
@@ -509,7 +517,7 @@ class Deck():
         >>> d1.size()
         0
         >>> d2 = Deck()
-        >>> # --- Insert tests involving a shuffled (default) deck.
+        >>> # -- Insert tests involving a shuffled (default) deck. --
         >>> d3 = Deck(empty=True)
         >>> d3.size()
         0
@@ -526,7 +534,6 @@ class Deck():
                 for rank in range(1, 14):
                     card = Card(rank, suit)
                     self._deck.append(card)
-                    self._card_dict[str(card)] = 1
             if shuffle:
                 rand.shuffle(self._deck)
 
@@ -575,14 +582,6 @@ class Deck():
         # ---------------
         # - self.size()
         #
-        # Error Check: Duplicate Cards
-        if self._card_dict[str(card)] == 1:
-            raise DuplicateCardException
-        # if self.size() >= 1:
-        #     index = randint(0, self.size())
-        #     self._deck.insert(index, card)
-        # else:
-        #     self.insert_top(card)
         if self.size() == 0:
             self._deck.append(card)
         elif self.size() == 1:
