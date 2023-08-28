@@ -184,12 +184,6 @@ class PokerGame:
         print(f"Pot = ${self._pot}\n")
 
     def e2_deal_pocket(self):
-        """
-        ***IMPORTANT***
-        ===============
-        From here on out, treat 1v1 cases like an edge case. Separate code
-        accordingly.
-        """
         # EZ-Variables
         dealer: Dealer = self._dealer
         players: list[Player] = self._players_queue
@@ -221,7 +215,7 @@ class PokerGame:
         # Call iterative turn handler
         self._turn_order_preflop(players)
         # Print Pot
-        print(f"\n Pre-Flop Pot = ${self._pot}\n")
+        print(f"\nPot (Pre-Flop) = ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
         # EZ-Variables
@@ -281,9 +275,9 @@ class PokerGame:
                     self._pot += int(raise_amt) - old_bet
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print(f"\n'{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.\n")
+                    print(f"\n'{p.username}' raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
-                    print(f"Pot = ${self._pot}\n")
+                    print(f"Pot = ${self._pot} (Your current stack: ${p.stack})\n")
 
                 # elif player FOLDS:
                 elif ans == p.Choice.FOLD.name:
@@ -363,7 +357,7 @@ def config_table_settings() -> tuple[str, int, int, int]:
 
     ans = input("Proceed with these settings? (y/n) ")
     if ans in ['Y', 'y', 'Yes', 'yes', '']:
-        print("\nLet's begin! Good luck, and enjoy responsibly.\n\n\n")
+        print("\nLet's begin! Good luck, and enjoy responsibly.\n\n")
         return username, int(player_count), int(buyin_amt), int(min_bet), True
     elif ans in ['N', 'n', 'No', 'no']:
         print("\nNo worries. Let's get our table set up again.\n")
@@ -444,7 +438,7 @@ def run():
     # DEBUGGGGGGGGGGGGGGGGG
     # =====================
     print(poker._players_queue)
-    print(poker._next_game_players_queue)
+    print(poker._next_game_players_queue, end='\n\n\n')
 
     # Poker Events
     # ============
@@ -454,7 +448,7 @@ def run():
     poker.e2_deal_pocket()
     print("\n============== PRE-FLOP ==============\n")
     poker.e3_preflop()
-    print('NOOIIIIIIIIIICEEEEEEEEEEEEEEEEEEEEE\n')
+    print("\n============== DEALER: FLOP ==============\n")
     # poker.e4_deal_flop()
     # poker.e5_flop()
     # poker.e6_deal_turn()
