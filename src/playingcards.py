@@ -10,6 +10,7 @@ from dataclasses import dataclass
 import random as rand
 
 
+
 RANK_MAP_STR: dict[int, str] = {1: 'Ace', 2: '2', 3: '3', 4: '4', 5: '5',
                                 6: '6', 7: '7', 8: '8', 9: '9', 10: '10',
                                 11: 'Jack', 12: 'Queen', 13: 'King'}
@@ -78,6 +79,7 @@ class Card:
     _rank: str
     _suit: str
 
+
     def __init__(self, rank: int, suit: str) -> None:
         """
         __Doctests:
@@ -129,7 +131,7 @@ class Card:
         >>> Card(13, 's')
         King of Spades
         """
-        return self.__str__()
+        return f'{self._rank} of {self._suit}'
     
 
     def __eq__(self, other: Card) -> bool:
@@ -289,6 +291,150 @@ class Card:
         'Spades'
         """
         return self._suit
+    
+
+    def is_blk(self) -> bool:
+        """
+        Return `True` if this card is black.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_blk()
+        True
+        >>> c2.is_blk()
+        False
+        >>> c3.is_blk()
+        False
+        >>> c4.is_blk()
+        True
+        """
+        if self.get_suit() in ['Spades', 'Clubs']:
+            return True
+        if self.get_suit() in ['Hearts', 'Diamonds']:
+            return False
+    
+    
+    def is_red(self) -> bool:
+        """
+        Return `True` if this card is red.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_red()
+        False
+        >>> c2.is_red()
+        True
+        >>> c3.is_red()
+        True
+        >>> c4.is_red()
+        False
+        """
+        if self.get_suit() in ['Hearts', 'Diamonds']:
+            return True
+        if self.get_suit() in ['Spades', 'Clubs']:
+            return False
+
+
+    def is_spades(self) -> bool:
+        """
+        Return `True` if this card is spades.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_spades()
+        True
+        >>> c2.is_spades()
+        False
+        >>> c3.is_spades()
+        False
+        >>> c4.is_spades()
+        False
+        """
+        return self.get_suit() == 'Spades'
+    
+
+    def is_hearts(self) -> bool:
+        """
+        Return `True` if this card is hearts.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_hearts()
+        False
+        >>> c2.is_hearts()
+        True
+        >>> c3.is_hearts()
+        False
+        >>> c4.is_hearts()
+        False
+        """
+        return self.get_suit() == 'Hearts'
+    
+
+    def is_diamonds(self) -> bool:
+        """
+        Return `True` if this card is diamonds.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_diamonds()
+        False
+        >>> c2.is_diamonds()
+        False
+        >>> c3.is_diamonds()
+        True
+        >>> c4.is_diamonds()
+        False
+        """
+        return self.get_suit() == 'Diamonds'
+
+
+    def is_clubs(self) -> bool:
+        """
+        Return `True` if this card is diamonds.
+        Else, return `False`.
+
+        How To Use:
+        -----------
+        >>> c1 = Card(1, 's')
+        >>> c2 = Card(3, 'h')
+        >>> c3 = Card(13, 'd')
+        >>> c4 = Card(10, 'c')
+        >>> c1.is_clubs()
+        False
+        >>> c2.is_clubs()
+        False
+        >>> c3.is_clubs()
+        False
+        >>> c4.is_clubs()
+        True
+        """
+        return self.get_suit() == 'Clubs'
 
 
 class InvalidArgException(Exception):
@@ -497,7 +643,6 @@ class Deck():
         # - `size()`
         #
         return self.size() == 0
-
 
 
 class EmptyDeckException(Exception):
