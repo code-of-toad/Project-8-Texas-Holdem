@@ -257,6 +257,9 @@ class PokerGame:
         print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
+        """
+        To be used within `self.e3_preflop()`
+        """
         # EZ-Variables
         old_bet = self._curr_bet
         dealer: str = self._dealer.name
@@ -279,7 +282,8 @@ class PokerGame:
                     print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" does NOT have enough chips & ", end='')
+                    print(Fore.RED + "folds" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
                     continue
                 # Invalid Input Check:
@@ -310,7 +314,7 @@ class PokerGame:
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
@@ -347,7 +351,8 @@ class PokerGame:
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" has ", end='')
+                    print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
@@ -367,7 +372,7 @@ class PokerGame:
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
                 print(Fore.CYAN + f"{p.username}", end='')
-                print(f": call.")
+                print(": Call.")
                 # Print Pot
                 print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
@@ -404,22 +409,23 @@ burns a card & reveals three community cards on the board:\n\
     def e5_flop(self):
         # EZ-Variables
         players: list[Player] = self._players_queue
-        # Betting Round: Flop
-        # ====================================================================
-        # TODO: Write `_handle_turn_order_flop`, an iterative helper that
-        #       handles all player calls, raises, and folds until every player
-        #       has called or folded.
-        # ====================================================================
         # Call iterative turn handler
         self._turn_order_flop(players)
         # Print Pot
         print(Fore.GREEN + f"\nPot (Flop): ${self._pot}\n")
 
     def _turn_order_flop(self, players: list[Player]) -> tuple[int, int, int]:
+        """
+        To be used within `self.e5_flop()`.
+
+        Features:
+          - 'CALL' or 'CHECK'
+          - 'RAISE' or 'BET'
+        """
         # EZ-Variables
+        old_bet = self._curr_bet
         dealer: str = self._dealer.name
-        old_bet: int = self._curr_bet
-        bet_occurred_already: bool = False
+        bet_already_occurred: bool = False
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
         i = 0
@@ -439,65 +445,63 @@ burns a card & reveals three community cards on the board:\n\
                     print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" does NOT have enough chips & ", end='')
+                    print(Fore.RED + "folds" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
                     continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
-                    print(": ", end='')
-                    print(Fore.CYAN + f"{p.username}", end='')
-                    if bet_occurred_already is False:
-                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
-                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
-                            ans = 'CALL'
-                            break
-                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, your stack: ${p.stack})\n")
-                            else:
-                                ans = 'BET'
-                                break
-                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
-                            ans = 'FOLD'
-                            break
-                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
-                    else:
+                    if bet_already_occurred:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
-                            else:
-                                ans = 'RAISE'
-                                break
+                            ans = 'RAISE'
+                            break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
                         print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                    else:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
+                        player_choice = input(", will you [c]heck, [b]bet, or [f]old? ")
+                        if player_choice in ['Check', 'check', 'C', 'c', 'CHECK', '']:
+                            ans = 'CHECK'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'BET'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
 
-                # CALL:
-                if ans == 'CALL':
+                # CALL or CHECK:
+                if ans in ['CALL', 'CHECK']:
                     # Update Caller Count
                     caller_count += 1
                     # Adjust Attributes
-                    chips = self._curr_bet - p.last_bet
-                    self._pot += chips
-                    p.stack -= chips
+                    toss_into_pot = self._curr_bet - p.last_bet
+                    self._pot += toss_into_pot
+                    p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
+                    if not bet_already_occurred:
+                        bet_already_occurred = True
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
+                    else:
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
-                # RAISE:
+                # RAISE or BET:
                 elif ans in ['RAISE', 'BET']:
                     # Invalid Input Check:
                     while True:
@@ -530,12 +534,12 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" has ", end='')
+                    print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
-                # Right now, all CPU players can CALL, only.
                 # +--------------------------------------------------------+
                 # |                       #TODO:                           |
                 # |  Replace this `elif` branch later when the CPU player  |
@@ -551,7 +555,10 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
                 print(Fore.CYAN + f"{p.username}", end='')
-                print(f": call.")
+                if chips == 0:
+                    print(": Check.")
+                else:
+                    print(": Call.")
                 # Print Pot
                 print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
@@ -561,6 +568,7 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                 # +--------------------------------------------------------+
             # Close While-Loop
             i += 1
+        
 
     def e6_deal_turn(self):
         # EZ-Variables
@@ -568,8 +576,7 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
         burn_cards: list[Card] = self._burn_cards
         comm_cards: list[Card] = self._comm_cards
         # Print Dealer ACtion
-        print(
-Fore.LIGHTMAGENTA_EX + f"{dealer.name}" + Style.RESET_ALL + " \
+        print(Fore.LIGHTMAGENTA_EX + f"{dealer.name}" + Style.RESET_ALL + " \
 burns a card & reveals another community card on the board:\n\
 ------------------------------------------------------------------------\n")
         # Logic
@@ -587,22 +594,23 @@ burns a card & reveals another community card on the board:\n\
     def e7_turn(self):
         # EZ-Variables
         players: list[Player] = self._players_queue
-        # Betting Round: Flop
-        # ====================================================================
-        # TODO: Write `_handle_turn_order_turn`, an iterative helper that
-        #       handles all player calls, raises, and folds until every player
-        #       has called or folded.
-        # ====================================================================
         # Call iterative turn handler
         self._turn_order_turn(players)
         # Print Pot
         print(Fore.GREEN + f"\nPot (Turn): ${self._pot}\n")
 
     def _turn_order_turn(self, players: list[Player]) -> tuple[int, int, int]:
+        """
+        To be used within `self.e7_turn()`.
+
+        Features:
+          - 'CALL' or 'CHECK'
+          - 'RAISE' or 'BET'
+        """
         # EZ-Variables
+        old_bet = self._curr_bet
         dealer: str = self._dealer.name
-        old_bet: int = self._curr_bet
-        bet_occurred_already: bool = False
+        bet_already_occurred: bool = False
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
         i = 0
@@ -622,52 +630,46 @@ burns a card & reveals another community card on the board:\n\
                     print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" does NOT have enough chips & ", end='')
+                    print(Fore.RED + "folds" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
                     continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
-                    print(": ", end='')
-                    print(Fore.CYAN + f"{p.username}", end='')
-                    if bet_occurred_already is False:
-                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
-                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
-                            ans = 'CALL'
-                            break
-                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
-                            else:
-                                ans = 'BET'
-                                break
-                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
-                            ans = 'FOLD'
-                            break
-                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
-                    else:
+                    if bet_already_occurred:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
-                            else:
-                                ans = 'RAISE'
-                                break
+                            ans = 'RAISE'
+                            break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
                         print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                    else:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
+                        player_choice = input(", will you [c]heck, [b]bet, or [f]old? ")
+                        if player_choice in ['Check', 'check', 'C', 'c', 'CHECK', '']:
+                            ans = 'CHECK'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'BET'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
 
-                # CALL:
-                if ans == 'CALL':
+                # CALL or CHECK:
+                if ans in ['CALL', 'CHECK']:
                     # Update Caller Count
                     caller_count += 1
                     # Adjust Attributes
@@ -676,11 +678,15 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
+                    if not bet_already_occurred:
+                        bet_already_occurred = True
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
+                    else:
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
-                # RAISE:
+                # RAISE or BET:
                 elif ans in ['RAISE', 'BET']:
                     # Invalid Input Check:
                     while True:
@@ -713,12 +719,12 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" has ", end='')
+                    print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
-                # Right now, all CPU players can CALL, only.
                 # +--------------------------------------------------------+
                 # |                       #TODO:                           |
                 # |  Replace this `elif` branch later when the CPU player  |
@@ -734,7 +740,10 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
                 print(Fore.CYAN + f"{p.username}", end='')
-                print(f": call.")
+                if chips == 0:
+                    print(": Check.")
+                else:
+                    print(": Call.")
                 # Print Pot
                 print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
@@ -751,22 +760,23 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
     def e9_river(self):
         # EZ-Variables
         players: list[Player] = self._players_queue
-        # Betting Round: River
-        # ====================================================================
-        # TODO: Write `_handle_turn_order_river`, an iterative helper that
-        #       handles all player calls, raises, and folds until every player
-        #       has called or folded.
-        # ====================================================================
         # Call iterative turn handler
         self._turn_order_river(players)
         # Print Pot
         print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
 
     def _turn_order_river(self, players: list[Player]) -> tuple[int, int, int]:
+        """
+        To be used within `self.e9_turn()`.
+
+        Features:
+          - 'CALL' or 'CHECK'
+          - 'RAISE' or 'BET'
+        """
         # EZ-Variables
+        old_bet = self._curr_bet
         dealer: str = self._dealer.name
-        old_bet: int = self._curr_bet
-        bet_occurred_already: bool = False
+        bet_already_occurred: bool = False
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
         i = 0
@@ -786,52 +796,46 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" does NOT have enough chips & ", end='')
+                    print(Fore.RED + "folds" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
                     continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
-                    print(": ", end='')
-                    print(Fore.CYAN + f"{p.username}", end='')
-                    if bet_occurred_already is False:
-                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
-                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
-                            ans = 'CALL'
-                            break
-                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
-                            else:
-                                ans = 'BET'
-                                break
-                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
-                            ans = 'FOLD'
-                            break
-                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
-                    else:
+                    if bet_already_occurred:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            if p.stack < self._curr_bet:   # if player is broke
-                                print(
-Fore.LIGHTRED_EX + f"You don't have enough chips. \
-(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
-                            else:
-                                ans = 'RAISE'
-                                break
+                            ans = 'RAISE'
+                            break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
                         print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                    else:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        print(": ", end='')
+                        print(Fore.CYAN + f"{p.username}", end='')
+                        player_choice = input(", will you [c]heck, [b]bet, or [f]old? ")
+                        if player_choice in ['Check', 'check', 'C', 'c', 'CHECK', '']:
+                            ans = 'CHECK'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'BET'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
 
-                # CALL:
-                if ans == 'CALL':
+                # CALL or CHECK:
+                if ans in ['CALL', 'CHECK']:
                     # Update Caller Count
                     caller_count += 1
                     # Adjust Attributes
@@ -840,11 +844,15 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
+                    if not bet_already_occurred:
+                        bet_already_occurred = True
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
+                    else:
+                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
-                # RAISE:
+                # RAISE or BET:
                 elif ans in ['RAISE', 'BET']:
                     # Invalid Input Check:
                     while True:
@@ -877,12 +885,12 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded. ", end='')
+                    print(" has ", end='')
+                    print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
-                # Right now, all CPU players can CALL, only.
                 # +--------------------------------------------------------+
                 # |                       #TODO:                           |
                 # |  Replace this `elif` branch later when the CPU player  |
@@ -898,7 +906,10 @@ Fore.LIGHTRED_EX + f"You don't have enough chips. \
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
                 print(Fore.CYAN + f"{p.username}", end='')
-                print(f": call.")
+                if chips == 0:
+                    print(": Check.")
+                else:
+                    print(": Call.")
                 # Print Pot
                 print(f"Pot: ${self._pot}\n")
                 # +--------------------------------------------------------+
@@ -1023,25 +1034,25 @@ def run():
     # ============
     print("\n============== Proj_8: Texas Hold'em ==============\n")
     poker.e0_show_player_stats()
-    print("\n============== Bet (1/5): BLIND ==============\n")
+    print("\n============== Blind Bets ==============\n")
     poker.e1_blind_bet()
     print("\n============== Deal: POCKET CARDS ==============\n")
     poker.e2_deal_pocket()
-    print("\n============== Bet (2/5): PRE-FLOP ==============\n")
+    print("\n============== Bet (1/4): PRE-FLOP ==============\n")
     poker.e3_preflop()
     print("\n============== Deal: FLOP ==============\n")
     poker.e4_deal_flop()
-    print("\n============== Bet(3/5): FLOP ==============\n")
+    print("\n============== Bet(2/4): FLOP ==============\n")
     poker.e5_flop()
     print("\n============== Deal: TURN ==============\n")
     poker.e6_deal_turn()
-    print("\n============== Bet(4/5): TURN ==============\n")
+    print("\n============== Bet(3/4): TURN ==============\n")
     poker.e7_turn()
     print("\n============== Deal: RIVER ==============\n")
     poker.e8_deal_river()
-    print("\n============== Bet (5/5): RIVER ==============\n")
+    print("\n============== Bet (4/4): RIVER ==============\n")
     poker.e9_river()
-    print("\n============= *** SHOWDOWN *** =============\n")
+    print("\n============== SHOWDOWN ==============\n")
     # poker.e10_showdown()
     # poker.e11_reward_winner()
     # poker.e12_save_data()
