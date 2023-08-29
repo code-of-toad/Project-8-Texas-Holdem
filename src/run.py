@@ -213,12 +213,12 @@ class PokerGame:
             if p.is_hum:
                 c1: Card = p.hole_cards[0]
                 c2: Card = p.hole_cards[1]
-        print("Your cards:\n-----------\n\n", end='')
-        print("  ", end='')
-        print_card(c1)
-        print("  ", end='')
-        print_card(c2)
-        print(end='\n\n')
+                print("Your cards:\n-----------\n\n", end='')
+                print("  ", end='')
+                print_card(c1)
+                print("  ", end='')
+                print_card(c2)
+                print(end='\n\n')
         # Below rests a prime example of inelegant code.
         # ----------------------------------------------
         # if c1.get_suit() in ['Spades', 'Clubs']:
@@ -257,8 +257,8 @@ class PokerGame:
         print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
-        old_bet = self._curr_bet
         # EZ-Variables
+        old_bet = self._curr_bet
         dealer: str = self._dealer.name
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
@@ -271,6 +271,17 @@ class PokerGame:
             p = players[i]
             # Human Player Turn:
             if p.is_hum:
+                # BROKE NINJA CHECK:
+                if p.stack < self._curr_bet:
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
@@ -287,7 +298,7 @@ class PokerGame:
                     elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                         ans = 'FOLD'
                         break
-                    print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                    print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
@@ -299,7 +310,7 @@ class PokerGame:
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print(f"{p.username}: call.")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
@@ -311,7 +322,7 @@ class PokerGame:
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
                     # Update Caller Count
                     caller_count = 1
                     # Toss Chips Into Pot
@@ -323,22 +334,21 @@ class PokerGame:
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print()
-                    print(Fore.CYAN + f"{p.username}", end='')
+                    print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
-                    print(p.stack)
 
                 # FOLD:
                 elif ans == 'FOLD':
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded.\n")
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -421,6 +431,17 @@ burns a card & reveals three community cards on the board:\n\
             p = players[i]
             # Human Player Turn:
             if p.is_hum:
+                # BROKE NINJA CHECK:
+                if p.stack < self._curr_bet:
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
@@ -433,36 +454,46 @@ burns a card & reveals three community cards on the board:\n\
                             ans = 'CALL'
                             break
                         elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, your stack: ${p.stack})\n")
+                            else:
+                                ans = 'BET'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
                     else:
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
+                            else:
+                                ans = 'RAISE'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
                     # Update Caller Count
                     caller_count += 1
                     # Adjust Attributes
-                    toss_into_pot = self._curr_bet - p.last_bet
-                    self._pot += toss_into_pot
-                    p.stack -= toss_into_pot
+                    chips = self._curr_bet - p.last_bet
+                    self._pot += chips
+                    p.stack -= chips
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print(f"{p.username}: call.")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
@@ -474,7 +505,7 @@ burns a card & reveals three community cards on the board:\n\
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
                     # Update Caller Count
                     caller_count = 1
                     # Toss Chips Into Pot
@@ -486,22 +517,21 @@ burns a card & reveals three community cards on the board:\n\
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print()
-                    print(Fore.CYAN + f"{p.username}", end='')
+                    print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
-                    print(p.stack)
 
                 # FOLD:
                 elif ans == 'FOLD':
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded.\n")
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -584,6 +614,17 @@ burns a card & reveals another community card on the board:\n\
             p = players[i]
             # Human Player Turn:
             if p.is_hum:
+                # BROKE NINJA CHECK:
+                if p.stack < self._curr_bet:
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
@@ -596,24 +637,34 @@ burns a card & reveals another community card on the board:\n\
                             ans = 'CALL'
                             break
                         elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
+                            else:
+                                ans = 'BET'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
                     else:
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
+                            else:
+                                ans = 'RAISE'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
@@ -625,7 +676,7 @@ burns a card & reveals another community card on the board:\n\
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print(f"{p.username}: call.")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
@@ -637,7 +688,7 @@ burns a card & reveals another community card on the board:\n\
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
                     # Update Caller Count
                     caller_count = 1
                     # Toss Chips Into Pot
@@ -649,22 +700,21 @@ burns a card & reveals another community card on the board:\n\
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print()
-                    print(Fore.CYAN + f"{p.username}", end='')
+                    print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
-                    print(p.stack)
 
                 # FOLD:
                 elif ans == 'FOLD':
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded.\n")
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -728,6 +778,17 @@ burns a card & reveals another community card on the board:\n\
             p = players[i]
             # Human Player Turn:
             if p.is_hum:
+                # BROKE NINJA CHECK:
+                if p.stack < self._curr_bet:
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    continue
                 # Invalid Input Check:
                 while True:
                     # Ask user for decision.
@@ -740,24 +801,34 @@ burns a card & reveals another community card on the board:\n\
                             ans = 'CALL'
                             break
                         elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
+                            else:
+                                ans = 'BET'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
                     else:
                         player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
                         if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
                             ans = 'CALL'
                             break
                         elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
-                            ans = 'RAISE'
-                            break
+                            if p.stack < self._curr_bet:   # if player is broke
+                                print(
+Fore.LIGHTRED_EX + f"You don't have enough chips. \
+(min. bet: ${self._curr_bet}, Your stack: ${p.stack}\n)")
+                            else:
+                                ans = 'RAISE'
+                                break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
@@ -769,7 +840,7 @@ burns a card & reveals another community card on the board:\n\
                     p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    print(f"{p.username}: call.")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": call. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
@@ -781,7 +852,7 @@ burns a card & reveals another community card on the board:\n\
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
                     # Update Caller Count
                     caller_count = 1
                     # Toss Chips Into Pot
@@ -793,22 +864,21 @@ burns a card & reveals another community card on the board:\n\
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
-                    print()
-                    print(Fore.CYAN + f"{p.username}", end='')
+                    print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
-                    print(p.stack)
 
                 # FOLD:
                 elif ans == 'FOLD':
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
-                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
-                    print(" has folded.\n")
+                    print(" has folded. ", end='')
+                    print(f"{p.username}'s stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
