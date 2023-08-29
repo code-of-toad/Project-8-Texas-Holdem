@@ -786,12 +786,16 @@ burns a card & reveals another community card on the board:\n\
                 i = 0
             # Player
             p = players[i]
+            # Broke Ninja Check
             # Human Player Turn:
             if p.is_hum:
                 # BROKE NINJA CHECK:
-                if p.stack < self._curr_bet:
+                if p.stack < (self._curr_bet - p.last_bet):
+                    print(p.stack)
+                    print(self._curr_bet)
+                    print(p.last_bet)
                     players.pop(i)
-                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    i -= 1  # Offset to account for the auto increment in '# Close While-Loop'
                     # Annouce Player Action 
                     print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
@@ -834,21 +838,24 @@ burns a card & reveals another community card on the board:\n\
                             break
                         print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
 
-                # CALL or CHECK:
-                if ans in ['CALL', 'CHECK']:
+                # CALL:
+                if ans is 'CALL':
                     # Update Caller Count
                     caller_count += 1
                     # Adjust Attributes
-                    toss_into_pot = self._curr_bet - p.last_bet
-                    self._pot += toss_into_pot
-                    p.stack -= toss_into_pot
+                    chips = self._curr_bet - p.last_bet
+                    self._pot += chips
+                    p.stack -= chips
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
-                    if not bet_already_occurred:
-                        bet_already_occurred = True
-                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
-                    else:
-                        print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call. (your stack: ${p.stack})")
+                    # Print Pot
+                    print(f"Pot: ${self._pot}\n")
+                
+                # CHECK:
+                elif ans is 'CHECK':
+                    # Annouce Player Action 
+                    print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
