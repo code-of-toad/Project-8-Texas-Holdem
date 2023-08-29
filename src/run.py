@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 from pprint import pprint
 from random import randint
 from enum import Enum, auto
-from colorama import Fore, Back, Style, init
+from colorama import Style, Fore, Back, init
 import random as rand
 import sys
 
@@ -84,15 +84,6 @@ class Player:
     last_bet: int
     is_hum: bool
     is_cpu: bool
-    # Player Choices
-    class Choice(Enum):
-        BET = 'b'
-        RAISE = 'r' 
-        CALL = 'c'
-        CHECK = 'k'
-        FOLD = 'f'
-        SHOW = 's'
-        MUCK ='m'
 
     def __init__(self,
                  username: str,
@@ -113,6 +104,13 @@ class Player:
 
     def __repr__(self) -> str:
         return self.username
+
+
+def print_card(card: Card) -> None:
+    if card.is_blk():
+        print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  ", end='')
+    elif card.is_red():
+        print(Style.BRIGHT + Back.WHITE + Fore.RED + f"  {card}  ", end='')
 
 
 class PokerGame:
@@ -194,7 +192,7 @@ class PokerGame:
         self._pot += big_blind
         # Print Pot
         print()
-        print(Fore.GREEN + f"Pot = ${self._pot}\n")
+        print(Fore.GREEN + f"Pot (Blind) = ${self._pot}\n")
 
     def e2_deal_pocket(self):
         # EZ-Variables
@@ -205,40 +203,48 @@ class PokerGame:
             # Deal card one at a time, starting from the dealer's left.
             for p in players:
                 p.hole_cards.append(dealer.draw())
-        # Print the user's current hole cards.
+        # Print the user's pocket cards.
+        self._display_hum_cards()
+
+    def _display_hum_cards(self):
+        # EZ_Variables
+        players: list[Player] = self._players_queue
         for p in players:
             if p.is_hum:
-                hole_1 = p.hole_cards[0]
-                hole_2 = p.hole_cards[1]
-                print("Your cards:\n-----------\n\n  ", end='')
-                if hole_1.get_suit() in ['Spades', 'Clubs']:
-                    print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_1} ", end='')
-                    if hole_2.get_suit() in ['Spades', 'Clubs']:
-                        print("  ", end='')
-                        print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
-                        print()
-                    else:
-                        print("  ", end='')
-                        print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
-                        print()
-                else:
-                    print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_1} ", end='')
-                    if hole_2.get_suit() in ['Spades', 'Clubs']:
-                        print("  ", end='')
-                        print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {hole_2} ")
-                        print()
-                    else:
-                        print("  ", end='')
-                        print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {hole_2} ")
-                        print()
+                c1: Card = p.hole_cards[0]
+                c2: Card = p.hole_cards[1]
+        print("Your cards:\n-----------\n\n", end='')
+        print("  ", end='')
+        print_card(c1)
+        print("  ", end='')
+        print_card(c2)
+        print(end='\n\n')
+        # Below rests a prime example of inelegant code.
+        # ----------------------------------------------
+        # if c1.get_suit() in ['Spades', 'Clubs']:
+        #     print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c1} ", end='')
+        #     if c2.get_suit() in ['Spades', 'Clubs']:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
+        #         print()
+        #     else:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
+        #         print()
+        # else:
+        #     print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c1} ", end='')
+        #     if c2.get_suit() in ['Spades', 'Clubs']:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
+        #         print()
+        #     else:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
+        #         print()
 
     def e3_preflop(self):
         # EZ-Variables
         players: list[Player] = self._players_queue
-        num_p: int = self._total_seats
-        # Edge Case: 1v1
-        if num_p == 2:
-            pass   #TODO
         # Betting Round: Pre-Flop
         # ====================================================================
         # TODO: Write `_handle_turn_order_preflop`, an iterative helper that
@@ -251,9 +257,9 @@ class PokerGame:
         print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
 
     def _turn_order_preflop(self, players: list[Player]) -> tuple[int, int, int]:
+        old_bet = self._curr_bet
         # EZ-Variables
         dealer: str = self._dealer.name
-        old_bet: int = self._curr_bet
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
         i = 2
@@ -263,7 +269,6 @@ class PokerGame:
                 i = 0
             # Player
             p = players[i]
-
             # Human Player Turn:
             if p.is_hum:
                 # Invalid Input Check:
@@ -284,32 +289,38 @@ class PokerGame:
                         break
                     print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
 
-                # if player CALLS:
-                if ans ==  p.Choice.CALL.name:
-                    # Adjust Attributes
+                # CALL:
+                if ans == 'CALL':
+                    # Update Caller Count
                     caller_count += 1
-                    self._pot += self._curr_bet - p.last_bet
-                    p.stack -= self._curr_bet - p.last_bet
+                    # Adjust Attributes
+                    toss_into_pot = self._curr_bet - p.last_bet
+                    self._pot += toss_into_pot
+                    p.stack -= toss_into_pot
                     p.last_bet = self._curr_bet
                     # Annouce Player Action 
                     print(f"{p.username}: call.")
                     # Print Pot
                     print(f"Pot: ${self._pot}\n")
 
-                # elif player RAISES:
-                elif ans == p.Choice.RAISE.name:
+                # RAISE:
+                elif ans == 'RAISE':
                     # Invalid Input Check:
                     while True:
-                        print(Fore.LIGHTMAGENTA_EX + f"\n{dealer}", end='')
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
-                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack):
+                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
                             break
-                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).")
-                    # Adjust Attributes & Variables
-                    old_bet = self._curr_bet
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                    # Update Caller Count
                     caller_count = 1
-                    p.stack -= int(raise_amt) - old_bet
-                    self._pot += int(raise_amt) - old_bet
+                    # Toss Chips Into Pot
+                    chips =  int(raise_amt) - p.last_bet
+                    p.stack -= chips
+                    self._pot += chips
+                    # Update Player Last Bet
+                    p.last_bet = self._curr_bet
+                    # Update Game Stats
                     self._curr_bet = int(raise_amt)
                     # Annouce Player Action 
                     print()
@@ -317,9 +328,10 @@ class PokerGame:
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
+                    print(p.stack)
 
-                # elif player FOLDS:
-                elif ans == p.Choice.FOLD.name:
+                # FOLD:
+                elif ans == 'FOLD':
                     players.pop(i)
                     i -= 1  # Offset to account for the increment in '# Close While-Loop'
                     # Annouce Player Action 
@@ -335,10 +347,13 @@ class PokerGame:
                 # |  Replace this `elif` branch later when the CPU player  |
                 # |           algorithm has been implemented.              |
                 # +--------------------------------------------------------+
-                # Adjust Attributes
+                # Update Caller Count
                 caller_count += 1
-                self._pot += self._curr_bet - p.last_bet
-                p.stack -= self._curr_bet - p.last_bet
+                # Toss Chips Into Pot
+                chips = self._curr_bet - p.last_bet
+                self._pot += chips
+                p.stack -= chips
+                # Update Player Last Bet
                 p.last_bet = self._curr_bet
                 # Annouce Player Action 
                 print(Fore.CYAN + f"{p.username}", end='')
@@ -354,36 +369,475 @@ class PokerGame:
             i += 1
 
     def e4_deal_flop(self):
+        # EZ-Variables
         dealer: Dealer = self._dealer
         burn_cards: list[Card] = self._burn_cards
         comm_cards: list[Card] = self._comm_cards
-        # Logic
-        burn_cards.append(dealer.draw())
-        for _ in range(3):
-            comm_cards.append(dealer.draw())
         # Print Dealer ACtion
         print(
 Fore.LIGHTMAGENTA_EX + f"{dealer.name}" + Style.RESET_ALL + " \
 burns a card & reveals three community cards on the board:\n\
-----------------------------------------------------------------\n")
-        # Show Community Cards
-        
-
-
+-----------------------------------------------------------------\n")
+        # Logic
+        burn_cards.append(dealer.draw())   # burn card
+        for _ in range(3):                 # collect community cards (3 total)
+            comm_cards.append(dealer.draw()) 
+        # Display Community Cards
+        for card in comm_cards:
+            print("  ", end='')
+            print_card(card)
+        print()
+        print()
+        # Display Player Cards
+        self._display_hum_cards()
+    
     def e5_flop(self):
-        pass
+        # EZ-Variables
+        players: list[Player] = self._players_queue
+        # Betting Round: Flop
+        # ====================================================================
+        # TODO: Write `_handle_turn_order_flop`, an iterative helper that
+        #       handles all player calls, raises, and folds until every player
+        #       has called or folded.
+        # ====================================================================
+        # Call iterative turn handler
+        self._turn_order_flop(players)
+        # Print Pot
+        print(Fore.GREEN + f"\nPot (Flop): ${self._pot}\n")
+
+    def _turn_order_flop(self, players: list[Player]) -> tuple[int, int, int]:
+        # EZ-Variables
+        dealer: str = self._dealer.name
+        old_bet: int = self._curr_bet
+        bet_occurred_already: bool = False
+        # Go thru each player, and continue until every player has called/folded.
+        caller_count = 0
+        i = 0
+        while caller_count < len(players):
+            # Valid Index Check
+            if i == len(players):
+                i = 0
+            # Player
+            p = players[i]
+            # Human Player Turn:
+            if p.is_hum:
+                # Invalid Input Check:
+                while True:
+                    # Ask user for decision.
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    if bet_occurred_already is False:
+                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                    else:
+                        player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+
+                # CALL:
+                if ans == 'CALL':
+                    # Update Caller Count
+                    caller_count += 1
+                    # Adjust Attributes
+                    toss_into_pot = self._curr_bet - p.last_bet
+                    self._pot += toss_into_pot
+                    p.stack -= toss_into_pot
+                    p.last_bet = self._curr_bet
+                    # Annouce Player Action 
+                    print(f"{p.username}: call.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot}\n")
+
+                # RAISE:
+                elif ans in ['RAISE', 'BET']:
+                    # Invalid Input Check:
+                    while True:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
+                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                    # Update Caller Count
+                    caller_count = 1
+                    # Toss Chips Into Pot
+                    chips =  int(raise_amt) - p.last_bet
+                    p.stack -= chips
+                    self._pot += chips
+                    # Update Player Last Bet
+                    p.last_bet = self._curr_bet
+                    # Update Game Stats
+                    self._curr_bet = int(raise_amt)
+                    # Annouce Player Action 
+                    print()
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
+                    print(p.stack)
+
+                # FOLD:
+                elif ans == 'FOLD':
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded.\n")
+
+            # CPU Player Turn:
+            elif p.is_cpu:
+                # Right now, all CPU players can CALL, only.
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+                # Update Caller Count
+                caller_count += 1
+                # Toss Chips Into Pot
+                chips = self._curr_bet - p.last_bet
+                self._pot += chips
+                p.stack -= chips
+                # Update Player Last Bet
+                p.last_bet = self._curr_bet
+                # Annouce Player Action 
+                print(Fore.CYAN + f"{p.username}", end='')
+                print(f": call.")
+                # Print Pot
+                print(f"Pot: ${self._pot}\n")
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+            # Close While-Loop
+            i += 1
 
     def e6_deal_turn(self):
-        pass
+        # EZ-Variables
+        dealer: Dealer = self._dealer
+        burn_cards: list[Card] = self._burn_cards
+        comm_cards: list[Card] = self._comm_cards
+        # Print Dealer ACtion
+        print(
+Fore.LIGHTMAGENTA_EX + f"{dealer.name}" + Style.RESET_ALL + " \
+burns a card & reveals another community card on the board:\n\
+------------------------------------------------------------------------\n")
+        # Logic
+        burn_cards.append(dealer.draw())   # burn card
+        comm_cards.append(dealer.draw())   # collect one community card
+        # Display Community Cards
+        for card in comm_cards:
+            print("  ", end='')
+            print_card(card)
+        print()
+        print()
+        # Display Player Cards
+        self._display_hum_cards()
 
     def e7_turn(self):
-        pass
+        # EZ-Variables
+        players: list[Player] = self._players_queue
+        # Betting Round: Flop
+        # ====================================================================
+        # TODO: Write `_handle_turn_order_turn`, an iterative helper that
+        #       handles all player calls, raises, and folds until every player
+        #       has called or folded.
+        # ====================================================================
+        # Call iterative turn handler
+        self._turn_order_turn(players)
+        # Print Pot
+        print(Fore.GREEN + f"\nPot (Turn): ${self._pot}\n")
+
+    def _turn_order_turn(self, players: list[Player]) -> tuple[int, int, int]:
+        # EZ-Variables
+        dealer: str = self._dealer.name
+        old_bet: int = self._curr_bet
+        bet_occurred_already: bool = False
+        # Go thru each player, and continue until every player has called/folded.
+        caller_count = 0
+        i = 0
+        while caller_count < len(players):
+            # Valid Index Check
+            if i == len(players):
+                i = 0
+            # Player
+            p = players[i]
+            # Human Player Turn:
+            if p.is_hum:
+                # Invalid Input Check:
+                while True:
+                    # Ask user for decision.
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    if bet_occurred_already is False:
+                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                    else:
+                        player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+
+                # CALL:
+                if ans == 'CALL':
+                    # Update Caller Count
+                    caller_count += 1
+                    # Adjust Attributes
+                    toss_into_pot = self._curr_bet - p.last_bet
+                    self._pot += toss_into_pot
+                    p.stack -= toss_into_pot
+                    p.last_bet = self._curr_bet
+                    # Annouce Player Action 
+                    print(f"{p.username}: call.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot}\n")
+
+                # RAISE:
+                elif ans in ['RAISE', 'BET']:
+                    # Invalid Input Check:
+                    while True:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
+                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                    # Update Caller Count
+                    caller_count = 1
+                    # Toss Chips Into Pot
+                    chips =  int(raise_amt) - p.last_bet
+                    p.stack -= chips
+                    self._pot += chips
+                    # Update Player Last Bet
+                    p.last_bet = self._curr_bet
+                    # Update Game Stats
+                    self._curr_bet = int(raise_amt)
+                    # Annouce Player Action 
+                    print()
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
+                    print(p.stack)
+
+                # FOLD:
+                elif ans == 'FOLD':
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded.\n")
+
+            # CPU Player Turn:
+            elif p.is_cpu:
+                # Right now, all CPU players can CALL, only.
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+                # Update Caller Count
+                caller_count += 1
+                # Toss Chips Into Pot
+                chips = self._curr_bet - p.last_bet
+                self._pot += chips
+                p.stack -= chips
+                # Update Player Last Bet
+                p.last_bet = self._curr_bet
+                # Annouce Player Action 
+                print(Fore.CYAN + f"{p.username}", end='')
+                print(f": call.")
+                # Print Pot
+                print(f"Pot: ${self._pot}\n")
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+            # Close While-Loop
+            i += 1
 
     def e8_deal_river(self):
-        pass
+        self.e6_deal_turn()
 
     def e9_river(self):
-        pass
+        # EZ-Variables
+        players: list[Player] = self._players_queue
+        # Betting Round: River
+        # ====================================================================
+        # TODO: Write `_handle_turn_order_river`, an iterative helper that
+        #       handles all player calls, raises, and folds until every player
+        #       has called or folded.
+        # ====================================================================
+        # Call iterative turn handler
+        self._turn_order_river(players)
+        # Print Pot
+        print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
+
+    def _turn_order_river(self, players: list[Player]) -> tuple[int, int, int]:
+        # EZ-Variables
+        dealer: str = self._dealer.name
+        old_bet: int = self._curr_bet
+        bet_occurred_already: bool = False
+        # Go thru each player, and continue until every player has called/folded.
+        caller_count = 0
+        i = 0
+        while caller_count < len(players):
+            # Valid Index Check
+            if i == len(players):
+                i = 0
+            # Player
+            p = players[i]
+            # Human Player Turn:
+            if p.is_hum:
+                # Invalid Input Check:
+                while True:
+                    # Ask user for decision.
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    if bet_occurred_already is False:
+                        player_choice = input(", will you [c]all, [b]et, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                    else:
+                        player_choice = input(", will you [c]all, [r]aise, or [f]old? ")
+                        if player_choice in ['Call', 'call', 'C', 'c', 'CALL', '']:
+                            ans = 'CALL'
+                            break
+                        elif player_choice in ['Raise', 'raise', 'R', 'r', 'RAISE']:
+                            ans = 'RAISE'
+                            break
+                        elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
+                            ans = 'FOLD'
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+
+                # CALL:
+                if ans == 'CALL':
+                    # Update Caller Count
+                    caller_count += 1
+                    # Adjust Attributes
+                    toss_into_pot = self._curr_bet - p.last_bet
+                    self._pot += toss_into_pot
+                    p.stack -= toss_into_pot
+                    p.last_bet = self._curr_bet
+                    # Annouce Player Action 
+                    print(f"{p.username}: call.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot}\n")
+
+                # RAISE:
+                elif ans in ['RAISE', 'BET']:
+                    # Invalid Input Check:
+                    while True:
+                        print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                        raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
+                        if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, p.stack + 1):
+                            break
+                        print(Style.BRIGHT + Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack} (your stack).\n")
+                    # Update Caller Count
+                    caller_count = 1
+                    # Toss Chips Into Pot
+                    chips =  int(raise_amt) - p.last_bet
+                    p.stack -= chips
+                    self._pot += chips
+                    # Update Player Last Bet
+                    p.last_bet = self._curr_bet
+                    # Update Game Stats
+                    self._curr_bet = int(raise_amt)
+                    # Annouce Player Action 
+                    print()
+                    print(Fore.CYAN + f"{p.username}", end='')
+                    print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
+                    # Print Pot
+                    print(f"Pot: ${self._pot} (Your current stack: ${p.stack})\n")
+                    print(p.stack)
+
+                # FOLD:
+                elif ans == 'FOLD':
+                    players.pop(i)
+                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    # Annouce Player Action 
+                    print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                    print(": ", end='')
+                    print(f"{p.username}", end='')
+                    print(" has folded.\n")
+
+            # CPU Player Turn:
+            elif p.is_cpu:
+                # Right now, all CPU players can CALL, only.
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+                # Update Caller Count
+                caller_count += 1
+                # Toss Chips Into Pot
+                chips = self._curr_bet - p.last_bet
+                self._pot += chips
+                p.stack -= chips
+                # Update Player Last Bet
+                p.last_bet = self._curr_bet
+                # Annouce Player Action 
+                print(Fore.CYAN + f"{p.username}", end='')
+                print(f": call.")
+                # Print Pot
+                print(f"Pot: ${self._pot}\n")
+                # +--------------------------------------------------------+
+                # |                       #TODO:                           |
+                # |  Replace this `elif` branch later when the CPU player  |
+                # |           algorithm has been implemented.              |
+                # +--------------------------------------------------------+
+            # Close While-Loop
+            i += 1
 
     def e10_showdown(self):
         pass
@@ -497,21 +951,27 @@ def run():
 
     # Poker Events
     # ============
-    print("\n============== PROJ_8: TEXAS HOLD'EM ==============\n")
+    print("\n============== Proj_8: Texas Hold'em ==============\n")
     poker.e0_show_player_stats()
-    print("\n============== BLIND BET ==============\n")
+    print("\n============== Bet (1/5): BLIND ==============\n")
     poker.e1_blind_bet()
-    print("\n============== DEALER: HOLE CARDS ==============\n")
+    print("\n============== Deal: POCKET CARDS ==============\n")
     poker.e2_deal_pocket()
-    print("\n============== PRE-FLOP ==============\n")
+    print("\n============== Bet (2/5): PRE-FLOP ==============\n")
     poker.e3_preflop()
-    print("\n============== DEALER: FLOP ==============\n")
+    print("\n============== Deal: FLOP ==============\n")
     poker.e4_deal_flop()
-    # poker.e5_flop()
-    # poker.e6_deal_turn()
-    # poker.e7_turn()
-    # poker.e8_deal_river()
-    # poker.e9_river()
+    print("\n============== Bet(3/5): FLOP ==============\n")
+    poker.e5_flop()
+    print("\n============== Deal: TURN ==============\n")
+    poker.e6_deal_turn()
+    print("\n============== Bet(4/5): TURN ==============\n")
+    poker.e7_turn()
+    print("\n============== Deal: RIVER ==============\n")
+    poker.e8_deal_river()
+    print("\n============== Bet (5/5): RIVER ==============\n")
+    poker.e9_river()
+    print("\n============= *** SHOWDOWN *** =============\n")
     # poker.e10_showdown()
     # poker.e11_reward_winner()
     # poker.e12_save_data()
@@ -521,10 +981,8 @@ def run():
 
 
 if __name__ == '__main__':
-    # import doctest; doctest.testmod()
     # try:
     #     run()
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
     run()
-    # print(Player.Choice.BET.name == 'BET')
