@@ -832,6 +832,7 @@ burns a card & reveals another community card on the board:\n\
                             break
                         elif player_choice in ['Bet', 'bet', 'B', 'b', 'BET']:
                             ans = 'BET'
+                            bet_already_occurred = True
                             break
                         elif player_choice in ['Fold', 'fold', 'F', 'f', 'FOLD']:
                             ans = 'FOLD'
