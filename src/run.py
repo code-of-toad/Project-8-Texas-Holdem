@@ -194,7 +194,7 @@ class PokerGame:
         # DEBUGGGGGGGGGGGGGGGGGGGGG
         # P2
         # DEBUGGGGGGGGGGGGGGGGGGGGG
-        print("DEBUG", f"{p1.username}'s stack: {p1.stack}")
+        print("\nDEBUG", f"{p1.username}'s stack: {p1.stack}")
         print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGG
@@ -293,7 +293,7 @@ class PokerGame:
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGG
@@ -346,10 +346,10 @@ class PokerGame:
                     chips =  int(raise_amt) - p.last_bet
                     p.stack -= chips
                     self._pot += chips
-                    # Update Player Last Bet
-                    p.last_bet = self._curr_bet
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
+                    # Update Player Last Bet
+                    p.last_bet = int(raise_amt)
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
@@ -454,7 +454,7 @@ burns a card & reveals three community cards on the board:\n\
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGG
@@ -523,6 +523,8 @@ burns a card & reveals three community cards on the board:\n\
                 
                 # CHECK:
                 elif ans == 'CHECK':
+                    # Update Caller Count
+                    caller_count += 1
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
@@ -543,10 +545,10 @@ burns a card & reveals three community cards on the board:\n\
                     chips =  int(raise_amt) - p.last_bet
                     p.stack -= chips
                     self._pot += chips
-                    # Update Player Last Bet
-                    p.last_bet = self._curr_bet
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
+                    # Update Player Last Bet
+                    p.last_bet = int(raise_amt)
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
@@ -653,7 +655,7 @@ burns a card & reveals another community card on the board:\n\
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGG
@@ -722,6 +724,8 @@ burns a card & reveals another community card on the board:\n\
                 
                 # CHECK:
                 elif ans == 'CHECK':
+                    # Update Caller Count
+                    caller_count += 1
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
@@ -742,10 +746,10 @@ burns a card & reveals another community card on the board:\n\
                     chips =  int(raise_amt) - p.last_bet
                     p.stack -= chips
                     self._pot += chips
-                    # Update Player Last Bet
-                    p.last_bet = self._curr_bet
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
+                    # Update Player Last Bet
+                    p.last_bet = int(raise_amt)
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
@@ -833,7 +837,7 @@ burns a card & reveals another community card on the board:\n\
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGG
@@ -902,6 +906,8 @@ burns a card & reveals another community card on the board:\n\
                 
                 # CHECK:
                 elif ans == 'CHECK':
+                    # Update Caller Count
+                    caller_count += 1
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check. (your stack: ${p.stack})")
                     # Print Pot
@@ -922,10 +928,10 @@ burns a card & reveals another community card on the board:\n\
                     chips =  int(raise_amt) - p.last_bet
                     p.stack -= chips
                     self._pot += chips
-                    # Update Player Last Bet
-                    p.last_bet = self._curr_bet
                     # Update Game Stats
                     self._curr_bet = int(raise_amt)
+                    # Update Player Last Bet
+                    p.last_bet = int(raise_amt)
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}", end='')
                     print(f" raised the bet from ${old_bet} to ${self._curr_bet}.")
