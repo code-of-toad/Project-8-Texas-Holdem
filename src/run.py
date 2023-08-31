@@ -110,6 +110,9 @@ class Player:
 
     def __repr__(self) -> str:
         return self.username
+    
+    def get_best_hand(self) -> list[Card, Card, Card, Card, Card]:
+        pass   #TODO
 
 
 def print_card(card: Card) -> None:
@@ -402,18 +405,30 @@ class PokerGame:
         print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
 
     def e10_showdown(self):
+        """Handle the showdown phase and reward pot to the winner."""
+        # EZ-Variables
+        players: list[Player] = self._players_queue
+        player_hands: list[list[Card, Card, Card, Card, Card]] = []
+        # Logic
+        for i, p in enumerate(players):
+            # 1. Collect each player's best hand.
+            player_hands.append(p.get_best_hand())
+            
+        
+        # 2. 
+
+
+        #  . Reward the winner.
+        reward = self._pot
+        self._pot -= reward
+        #TODO
+
+    def e11_save_data(self):
+        """Save data locally."""
         pass
 
-    def e11_reward_winner(self):
-        pass
-
-    def e12_save_data(self):
-        pass
-
-    def e13_prep_next_game(self):
-        """
-        Reset this instance of `PokerGame` for the upcoming new hand.
-        """
+    def e12_prep_next_game(self):
+        """Reset this instance of `PokerGame` for the upcoming new hand."""
         # Give dealer a brand-new shuffled deck for the next hand.     
         self._dealer.new_deck()
         # Reset the player queues.
@@ -812,9 +827,8 @@ def run():
     poker.e9_river()
     print("\n============== SHOWDOWN ==============\n")
     # poker.e10_showdown()
-    # poker.e11_reward_winner()
-    # poker.e12_save_data()
-    # poker.e13_shift_order()
+    # poker.e11_save_data()
+    # poker.e12_prep_next_game()
 
     # And... Repeat.
 
