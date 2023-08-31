@@ -115,20 +115,21 @@ def print_card(card: Card) -> None:
 
 class PokerGame:
     # Active "Participants"
-    _dealer: Dealer
-    _players_queue: list[Player]  # When game is over, replace this w/ the one below.
-    _next_game_players_queue: list[Player]  # Remove players ONLY when one exits the table.
+    _dealer: Dealer  # never changes
+    # If size must be reduced, the next two lists MUST UPDATE SIMULATANEOUSLY.
+    _players_queue: list[Player]            # When game is over, replace this w/ the one below.
+    _next_game_players_queue: list[Player]  # Remove players ONLY when a player cashes out of the table.
     # Physical Aspects
-    _pot: int
-    _burn_cards: list[Card]
-    _comm_cards: list[Card]
+    _pot: int                # RESET
+    _burn_cards: list[Card]  # RESET
+    _comm_cards: list[Card]  # RESET
     # Game Info
-    _curr_bet: int
-    # _total_seats: int  # decrement everytime a player cashes out
-    _big_blind: int
-    _sml_blind: int
-    _buyin_amt: int
-    _hands_played: int  # increment everytime a game ends successfully
+    _curr_bet: int           # RESET
+    # _total_seats: int          # decrement everytime a player cashes out
+    _big_blind: int    # never changes
+    _sml_blind: int    # never changes
+    _buyin_amt: int    # never changes
+    _hands_played: int           # increment everytime a game ends successfully
 
     def __init__(self,
                  dealer: Dealer,
