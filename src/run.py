@@ -73,6 +73,12 @@ class Dealer:
     def draw(self) -> Card:
         return self.deck.draw()
 
+    def new_deck(self) -> None:
+        """
+        Equip this dealer with a brand-new shuffled deck.
+        """
+        self.deck = Deck()
+
 
 class Player:
     # Player Cards
@@ -120,16 +126,16 @@ class PokerGame:
     _players_queue: list[Player]            # When game is over, replace this w/ the one below.
     _next_game_players_queue: list[Player]  # Remove players ONLY when a player cashes out of the table.
     # Physical Aspects
-    _pot: int                # RESET
-    _burn_cards: list[Card]  # RESET
-    _comm_cards: list[Card]  # RESET
+    _pot: int
+    _burn_cards: list[Card]
+    _comm_cards: list[Card]
     # Game Info
-    _curr_bet: int           # RESET
-    # _total_seats: int          # decrement everytime a player cashes out
-    _big_blind: int    # never changes
-    _sml_blind: int    # never changes
-    _buyin_amt: int    # never changes
-    _hands_played: int           # increment everytime a game ends successfully
+    _curr_bet: int
+    # _total_seats: int    # decrement everytime a player cashes out
+    _big_blind: int
+    _sml_blind: int
+    _buyin_amt: int
+    _hands_played: int    # increment everytime a game ends successfully
 
     def __init__(self,
                  dealer: Dealer,
@@ -150,7 +156,7 @@ class PokerGame:
         self._comm_cards = []
         # Game Info
         self._curr_bet = min_bet
-        self._total_seats = len(players_list)
+        # self._total_seats = len(players_list)
         self._big_blind = min_bet
         self._sml_blind = min_bet // 2
         self._buyin_amt = buyin_amt
@@ -376,6 +382,7 @@ class PokerGame:
     
     def e5_flop(self):
         self._handle_flop_turn_river()
+        # Print Pot
         print(Fore.GREEN + f"\nPot (Flop): ${self._pot}\n")
 
     def e6_deal_turn(self):
@@ -383,6 +390,7 @@ class PokerGame:
 
     def e7_turn(self):
         self._handle_flop_turn_river()
+        # Print Pot
         print(Fore.GREEN + f"\nPot (Turn): ${self._pot}\n")
 
     def e8_deal_river(self):
@@ -390,6 +398,7 @@ class PokerGame:
 
     def e9_river(self):
         self._handle_flop_turn_river()
+        # Print Pot
         print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
 
     def e10_showdown(self):
@@ -401,8 +410,29 @@ class PokerGame:
     def e12_save_data(self):
         pass
 
-    def e13_shift_order(self):
-        pass
+    def e13_prep_next_game(self):
+        """
+        Reset this instance of `PokerGame` for the upcoming new hand.
+        """
+        # Give dealer a brand-new shuffled deck for the next hand.     
+        self._dealer.new_deck()
+        # Reset the player queues.
+        players_list_1 = self._next_game_players_queue.copy()
+        players_list_2 = self._next_game_players_queue.copy()
+        self._players_queue = players_list_1
+        players_list_2.append(players_list_2.pop(0))
+        self._next_game_players_queue = players_list_2
+        # Reset public cards.
+        self._burn_cards = []
+        self._comm_cards = []
+        # Reset game stats.
+        self._curr_bet = self._big_blind
+        # Reset each player's attributes.
+        for p in self._players_queue:
+            p.hole_cards = []
+            p.last_bet = 0
+        # Update game info.
+        self._hands_played += 1
 
     def _display_hum_cards(self):
         # EZ_Variables
