@@ -282,6 +282,18 @@ class PokerGame:
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # BROKE NINJA CHECK:
+            if p.stack < (self._curr_bet - p.last_bet):
+                players.pop(i)
+                i -= 1  # Offset to account for the auto increment in '# Close While-Loop'
+                # Annouce Player Action 
+                print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                print(": ", end='')
+                print(f"{p.username}", end='')
+                print(" does NOT have enough chips & ", end='')
+                print(Fore.RED + "folds" + Style.RESET_ALL + ". ")
+                print(f"{p.username}'s stack: ${p.stack}\n")
+                continue
             # Human Player Turn:
             if p.is_hum:
                 # Invalid Input Check:
