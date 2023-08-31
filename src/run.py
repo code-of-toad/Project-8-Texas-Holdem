@@ -336,7 +336,7 @@ class PokerGame:
                         raise_amt = input(f": The current bet is ${self._curr_bet}. What will you raise it to? $")
                         if raise_amt.isdigit() and int(raise_amt) in range(self._curr_bet + 1, (p.stack + 1) + p.last_bet):
                             break
-                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack + p.last_bet} (your stack).\n")
+                        print(Fore.LIGHTRED_EX + f"Invalid Input: The raise amount must be an integer from ${self._curr_bet + 1} (minimum raise) to ${p.stack + p.last_bet} (your maximum raise).\n")
                     # Update Caller Count
                     caller_count = 1
                     # Toss Chips Into Pot
