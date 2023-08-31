@@ -176,11 +176,11 @@ class PokerGame:
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
         # P0
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
         print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
         print(": ", end='')
         print(Fore.CYAN + f"{p0}", end='')
@@ -188,17 +188,17 @@ class PokerGame:
         p0.stack -= sml_blind
         p0.last_bet = sml_blind
         self._pot += sml_blind
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
         print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # P1
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print("\nDEBUG", f"{p1.username}'s stack: {p1.stack}")
         print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
         print(": ", end='')
         print(Fore.CYAN + f"{p1}", end='')
@@ -206,11 +206,11 @@ class PokerGame:
         p1.stack -= big_blind
         p1.last_bet = big_blind
         self._pot += big_blind
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print("DEBUG", f"{p1.username}'s stack: {p1.stack}")
         print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-        # DEBUGGGGGGGGGGGGGGGGGGGGG
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # Print Pot
         print()
         print(Fore.GREEN + f"Pot (Blind) = ${self._pot}\n")
@@ -495,11 +495,11 @@ burns a card & reveals another community card on the board:\n\
                 i = 0
             # Player
             p = players[i]
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             # BROKE NINJA CHECK:
             if p.stack < (self._curr_bet - p.last_bet):
                 players.pop(i)
@@ -654,11 +654,11 @@ burns a card & reveals another community card on the board:\n\
                 # +--------------------------------------------------------+
             # Close While-Loop
             i += 1
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             print("DEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 
 
 def config_table_settings() -> tuple[str, int, int, int]:
@@ -753,10 +753,10 @@ def run():
     # ===============
     poker = PokerGame(dealer, players_list, min_bet, buyin_amt)
 
-    # DEBUGGGGGGGGGGGGGGGGG
-    # =====================
+    # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
     # print(poker._players_queue)
     # print(poker._next_game_players_queue, end='\n\n\n')
+    # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 
     # Poker Events
     # ============
