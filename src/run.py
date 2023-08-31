@@ -227,42 +227,6 @@ class PokerGame:
         # Print the user's pocket cards.
         self._display_hum_cards()
 
-    def _display_hum_cards(self):
-        # EZ_Variables
-        players: list[Player] = self._players_queue
-        for p in players:
-            if p.is_hum:
-                c1: Card = p.hole_cards[0]
-                c2: Card = p.hole_cards[1]
-                print("Your cards:\n-----------\n\n", end='')
-                print("  ", end='')
-                print_card(c1)
-                print("  ", end='')
-                print_card(c2)
-                print(end='\n\n')
-        # Below rests a prime example of inelegant code.
-        # ----------------------------------------------
-        # if c1.get_suit() in ['Spades', 'Clubs']:
-        #     print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c1} ", end='')
-        #     if c2.get_suit() in ['Spades', 'Clubs']:
-        #         print("  ", end='')
-        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
-        #         print()
-        #     else:
-        #         print("  ", end='')
-        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
-        #         print()
-        # else:
-        #     print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c1} ", end='')
-        #     if c2.get_suit() in ['Spades', 'Clubs']:
-        #         print("  ", end='')
-        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
-        #         print()
-        #     else:
-        #         print("  ", end='')
-        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
-        #         print()
-
     def e3_preflop(self):
         # Call iterative turn handler
         # EZ-Variables
@@ -278,11 +242,11 @@ class PokerGame:
                 i = 0
             # Player
             p = players[i]
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             # BROKE NINJA CHECK:
             if p.stack < (self._curr_bet - p.last_bet):
                 players.pop(i)
@@ -399,11 +363,11 @@ class PokerGame:
                 # +--------------------------------------------------------+
             # Close While-Loop
             i += 1
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             print("DEBUG", f"{p.username}'s stack: {p.stack}")
             print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
             print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
-            # DEBUGGGGGGGGGGGGGGGGGGGGG
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # Print Pot
         print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
 
@@ -439,6 +403,42 @@ class PokerGame:
 
     def e13_shift_order(self):
         pass
+
+    def _display_hum_cards(self):
+        # EZ_Variables
+        players: list[Player] = self._players_queue
+        for p in players:
+            if p.is_hum:
+                c1: Card = p.hole_cards[0]
+                c2: Card = p.hole_cards[1]
+                print("Your cards:\n-----------\n\n", end='')
+                print("  ", end='')
+                print_card(c1)
+                print("  ", end='')
+                print_card(c2)
+                print(end='\n\n')
+        # Below rests a prime example of inelegant code.
+        # ----------------------------------------------
+        # if c1.get_suit() in ['Spades', 'Clubs']:
+        #     print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c1} ", end='')
+        #     if c2.get_suit() in ['Spades', 'Clubs']:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
+        #         print()
+        #     else:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
+        #         print()
+        # else:
+        #     print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c1} ", end='')
+        #     if c2.get_suit() in ['Spades', 'Clubs']:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f" {c2} ")
+        #         print()
+        #     else:
+        #         print("  ", end='')
+        #         print(Style.BRIGHT + Back.WHITE + Fore.RED + f" {c2} ")
+        #         print()
 
     def _handle_deals(self, flop=False):
         # EZ-Variables
