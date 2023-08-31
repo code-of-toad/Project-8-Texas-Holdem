@@ -410,30 +410,21 @@ class PokerGame:
         self._handle_deals(flop=True)
     
     def e5_flop(self):
-        # Call iterative turn handler
-        # self._turn_order_flop()
         self._handle_flop_turn_river()
-        # Print Pot
         print(Fore.GREEN + f"\nPot (Flop): ${self._pot}\n")
 
     def e6_deal_turn(self):
         self._handle_deals()
 
     def e7_turn(self):
-        # Call iterative turn handler
-        # self._turn_order_turn()
         self._handle_flop_turn_river()
-        # Print Pot
         print(Fore.GREEN + f"\nPot (Turn): ${self._pot}\n")
 
     def e8_deal_river(self):
         self._handle_deals()
 
     def e9_river(self):
-        # Call iterative turn handler
-        # self._turn_order_river()
         self._handle_flop_turn_river()
-        # Print Pot
         print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
 
     def e10_showdown(self):
