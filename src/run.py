@@ -175,7 +175,7 @@ class PokerGame:
         p1: Player = self._players_queue[1]
         sml_blind: int = self._sml_blind
         big_blind: int = self._big_blind
-        # P1
+        # P0
         # DEBUGGGGGGGGGGGGGGGGGGGGG
         print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
         print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
@@ -193,7 +193,7 @@ class PokerGame:
         print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
         print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGG
-        # P2
+        # P1
         # DEBUGGGGGGGGGGGGGGGGGGGGG
         print("\nDEBUG", f"{p1.username}'s stack: {p1.stack}")
         print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
