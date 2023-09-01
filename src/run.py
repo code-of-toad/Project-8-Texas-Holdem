@@ -41,8 +41,8 @@ class Ann:
     AI_NAMES = ['Mr. Johnson', 'Eng Mo', 'Shashta', 'Ishmael', 'Jesse',
                 'xXgregXx', 'citizen_sane', 'codge', 'Elvis', 'Cat', 'Dog',
                 'Monkey', 'ManBearPig', 'Team-O', 'j0ker', 'Mr. White',
-                'bavid blaine', 'Uncle Wong', 'IT', 'Shrek', 'Donkey', 'Mrs. Lemon',
-                'Will Wmith', 'Bike', 'Unicycle', '뛰는놈', '나는놈', 'Mr. 8east',
+                'bavid blaine', 'Uncle Wong', 'Shrek', 'Donkey', 'Mrs. Lemon',
+                'Will', 'Bike', 'Unicycle', '뛰는놈', '나는놈', 'Mr. 8east',
                 '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
     class POKER_HANDS_RANKING(Enum):
         ROYAL_FLUSH = 10
@@ -83,7 +83,6 @@ class Dealer:
 class Player:
     # Player Cards
     hole_cards: list[Card, Card]
-    # curr_hand: list[Card, Card, Card, Card, Card]
     # Player Info
     username: str
     stack: int
@@ -96,7 +95,6 @@ class Player:
                  stack: int,
                  is_hum: bool) -> None:
         # Player Cards
-        # self.curr_hand = []
         self.hole_cards = []
         # Player Info
         self.username = username
@@ -111,8 +109,26 @@ class Player:
     def __repr__(self) -> str:
         return self.username
     
-    def get_best_hand(self) -> list[Card, Card, Card, Card, Card]:
-        pass   #TODO
+    def __eq__(self, other: Player) -> bool:
+        if isinstance(other, Player):
+            return self.username == other.username
+        return False
+    
+    def get_best_hand(self, comm_cards: list[Card]
+                      ) -> tuple[list[Card], list[Card], int, str]:
+        """
+        Written to be used within `PokerGame.e10_showdown()`.
+        """
+        all_cards: list[Card] = self.hole_cards + comm_cards
+        #TODO: Write an algorithm that takes a list of seven `Card` instances
+        #      and determines the best possible 5-card hand that can be formed,
+        #      plus an ordered list of the 
+        #
+        # Take `all_cards` and determine the 5 `Card`s that form the best
+        # possible 5-card hand.
+        #
+        hand: list[Card]      # Always 5 cards, exactly.
+        kickers: list[Card]
 
 
 def print_card(card: Card) -> None:
@@ -134,6 +150,7 @@ class PokerGame:
     _comm_cards: list[Card]
     # Game Info
     _curr_bet: int
+    _last_aggressor: Player
     # _total_seats: int    # decrement everytime a player cashes out
     _big_blind: int
     _sml_blind: int
@@ -159,6 +176,7 @@ class PokerGame:
         self._comm_cards = []
         # Game Info
         self._curr_bet = min_bet
+        self._last_aggressor = None
         # self._total_seats = len(players_list)
         self._big_blind = min_bet
         self._sml_blind = min_bet // 2
@@ -186,9 +204,9 @@ class PokerGame:
         big_blind: int = self._big_blind
         # P0
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
-        print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
-        print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+        # print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
+        # print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
+        # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
         print(": ", end='')
@@ -198,15 +216,15 @@ class PokerGame:
         p0.last_bet = sml_blind
         self._pot += sml_blind
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
-        print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
-        print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+        # print("DEBUG", f"{p0.username}'s stack: {p0.stack}")
+        # print("DEBUG", f"{p0.username}'s last bet: {p0.last_bet}")
+        # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # P1
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        print("\nDEBUG", f"{p1.username}'s stack: {p1.stack}")
-        print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
-        print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+        # print("\nDEBUG", f"{p1.username}'s stack: {p1.stack}")
+        # print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
+        # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         print(Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
         print(": ", end='')
@@ -216,9 +234,9 @@ class PokerGame:
         p1.last_bet = big_blind
         self._pot += big_blind
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        print("DEBUG", f"{p1.username}'s stack: {p1.stack}")
-        print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
-        print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+        # print("DEBUG", f"{p1.username}'s stack: {p1.stack}")
+        # print("DEBUG", f"{p1.username}'s last bet: {p1.last_bet}")
+        # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # Print Pot
         print()
@@ -236,25 +254,38 @@ class PokerGame:
         # Print the user's pocket cards.
         self._display_hum_cards()
 
-    def e3_preflop(self):
-        # Call iterative turn handler
+    def e3_preflop(self) -> Optional[bool]:
         # EZ-Variables
         players: list[Player] = self._players_queue
-        old_bet = self._curr_bet
+        old_bet: int = self._curr_bet
         dealer: str = self._dealer.name
         # Go thru each player, and continue until every player has called/folded.
         caller_count = 0
         i = 2
         while caller_count < len(players):
+            # If only one player remains, reward the pot to the winner.
+            if len(players) == 1:
+                winner = players[0]
+                print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                print(": ", end='')
+                print(f"{winner}", end='')
+                print(" is the only player remaining. ", end='')
+                print(Fore.CYAN + f"{winner}" + Style.RESET_ALL + " is the winner! :)")
+                print(Fore.CYAN + f"{winner}" + Style.RESET_ALL + " claims the pot of ", end='')
+                print(Fore.GREEN + Style.BRIGHT + f"${self._pot}" + Style.RESET_ALL + ".")
+                winner.stack += self._pot
+                self._pot = 0
+                print(f"{p.username}'s Stack: ${p.stack}\n")
+                return False
             # Valid Index Check
             if i == len(players):
                 i = 0
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
-            print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
-            print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+            # print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
+            # print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
+            # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             # BROKE NINJA CHECK:
             if p.stack < (self._curr_bet - p.last_bet):
@@ -292,7 +323,7 @@ class PokerGame:
                         ans = 'FOLD'
                         break
                     else:
-                        print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'r', or 'f'.\n")
+                        print(Fore.LIGHTRED_EX + "Invalid Input: Enter 'c', 'r', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
@@ -306,7 +337,7 @@ class PokerGame:
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call.")
                     # Print Pot
-                    print(f"Pot: ${self._pot} (Your stack: ${p.stack})\n")
+                    print(f"Pot: ${self._pot} (Your Stack: ${p.stack})\n")
 
                 # RAISE:
                 elif ans == 'RAISE':
@@ -343,7 +374,7 @@ class PokerGame:
                     print(f"{p.username}", end='')
                     print(" has ", end='')
                     print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
-                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    print(f"{p.username}'s Stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -373,9 +404,9 @@ class PokerGame:
             # Close While-Loop
             i += 1
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
-            print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
-            print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+            # print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            # print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
+            # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         # Print Pot
         print(Fore.GREEN + f"\nPot (Pre-Flop): ${self._pot}\n")
@@ -383,48 +414,49 @@ class PokerGame:
     def e4_deal_flop(self):
         self._handle_deals(flop=True)
     
-    def e5_flop(self):
-        self._handle_flop_turn_river()
-        # Print Pot
-        print(Fore.GREEN + f"\nPot (Flop): ${self._pot}\n")
+    def e5_flop(self) -> Optional[bool]:
+        return self._handle_flop_turn_river(round='Flop')
 
     def e6_deal_turn(self):
         self._handle_deals()
 
-    def e7_turn(self):
-        self._handle_flop_turn_river()
-        # Print Pot
-        print(Fore.GREEN + f"\nPot (Turn): ${self._pot}\n")
+    def e7_turn(self) -> Optional[bool]:
+        return self._handle_flop_turn_river(round='Turn')
 
     def e8_deal_river(self):
         self._handle_deals()
 
-    def e9_river(self):
-        self._handle_flop_turn_river()
-        # Print Pot
-        print(Fore.GREEN + f"\nPot (River): ${self._pot}\n")
+    def e9_river(self) -> Optional[bool]:
+        return self._handle_flop_turn_river(round='River')
 
     def e10_showdown(self):
         """Handle the showdown phase and reward pot to the winner."""
         # EZ-Variables
-        players: list[Player] = self._players_queue
-        player_hands: list[list[Card, Card, Card, Card, Card]] = []
-        # Logic
-        for i, p in enumerate(players):
-            # 1. Collect each player's best hand.
-            player_hands.append(p.get_best_hand())
-            
-        
-        # 2. 
-
-
-        #  . Reward the winner.
-        reward = self._pot
-        self._pot -= reward
-        #TODO
+        last_aggressor = self._last_aggressor
+        # Edge Case
+        if last_aggressor is None:
+            pass
+        # 1. Collect a list of players who hold the highest-ranking hand.
+        pass
+        # 2. Show the last aggressor's hand. 
+        pass
+        # 3. If the next-turn player has a better hand, show the hand.
+        pass
+        # 4. Otherwise, give the next-turn player a choice to Show/Muck.
+        pass
+        # 5. Determine the winner(s).
+        pass
+        # 6. Reward the winner(s).
+        pass
 
     def e11_save_data(self):
         """Save data locally."""
+        # Update game info.
+        self._hands_played += 1
+        # Save data locally.
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+        print('DEBUGGGGGGGGGGGGG', self._hands_played)
+        # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
         pass
 
     def e12_prep_next_game(self):
@@ -442,12 +474,11 @@ class PokerGame:
         self._comm_cards = []
         # Reset game stats.
         self._curr_bet = self._big_blind
+        self._last_aggressor = None
         # Reset each player's attributes.
         for p in self._players_queue:
             p.hole_cards = []
             p.last_bet = 0
-        # Update game info.
-        self._hands_played += 1
 
     def _display_hum_cards(self):
         # EZ_Variables
@@ -514,36 +545,55 @@ burns a card & reveals another community card on the board:\n\
         # Display Player Cards
         self._display_hum_cards()
 
-    def _handle_flop_turn_river(self):
+    def _handle_flop_turn_river(self, round: str) -> Optional[bool]:
         """
         Helper handler method called by:
           1. `self.e5_flop()`
           2. `self.e7_turn()`
           3. `self.e9_river()`
+        
+        Return `False` if only one player remains BEFORE the showdown is
+        reached. Otherwise, return `None`.
 
         Features:
           - 'CALL' or 'CHECK'
           - 'RAISE' or 'BET'
         """
+        # Error Check
+        if round not in ['Flop', 'Turn', 'River']:
+            raise Exception('u good?')
         # EZ-Variables
         players: list[Player] = self._players_queue
         dealer: str = self._dealer.name
         old_bet: int = self._curr_bet
         # Go thru each player, and continue until every player has called/folded.
         bet_already_occurred: bool = False
-        # Indeces & Trackers
         caller_count = 0
         i = 0
         while caller_count < len(players):
+            # If only one player remains, reward the pot to the winner.
+            if len(players) == 1:
+                winner = players[0]
+                print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
+                print(": ", end='')
+                print(f"{winner}", end='')
+                print(" is the only player remaining. ", end='')
+                print(Fore.CYAN + f"{winner}" + Style.RESET_ALL + " is the winner! :)")
+                print(Fore.CYAN + f"{winner}" + Style.RESET_ALL + " claims the pot of ", end='')
+                print(Fore.GREEN + Style.BRIGHT + f"${self._pot}" + Style.RESET_ALL + ".")
+                winner.stack += self._pot
+                self._pot = 0
+                print(f"{p.username}'s Stack: ${p.stack}\n")
+                return False
             # Valid Index Check
             if i == len(players):
                 i = 0
             # Player
             p = players[i]
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-            print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
-            print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
-            print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+            # print("\nDEBUG", f"{p.username}'s stack: {p.stack}")
+            # print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
+            # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
             # BROKE NINJA CHECK:
             if p.stack < (self._curr_bet - p.last_bet):
@@ -604,7 +654,7 @@ burns a card & reveals another community card on the board:\n\
                             ans = 'FOLD'
                             break
                         else:
-                            print(Fore.LIGHTRED_EX + "Invalid input: Enter 'c', 'b', or 'f'.\n")
+                            print(Fore.LIGHTRED_EX + "Invalid Input: Enter 'c', 'b', or 'f'.\n")
 
                 # CALL:
                 if ans == 'CALL':
@@ -618,7 +668,7 @@ burns a card & reveals another community card on the board:\n\
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call.")
                     # Print Pot
-                    print(f"Pot: ${self._pot}\n (your stack: ${p.stack})")
+                    print(f"Pot: ${self._pot} (Your Stack: ${p.stack})\n")
                 
                 # CHECK:
                 elif ans == 'CHECK':
@@ -627,7 +677,7 @@ burns a card & reveals another community card on the board:\n\
                     # Annouce Player Action 
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Check.")
                     # Print Pot
-                    print(f"Pot: ${self._pot}\n (your stack: ${p.stack})")
+                    print(f"Pot: ${self._pot} (Your Stack: ${p.stack})\n")
 
                 # RAISE or BET:
                 elif ans in ['RAISE', 'BET']:
@@ -643,6 +693,8 @@ burns a card & reveals another community card on the board:\n\
                             print(Fore.LIGHTRED_EX + f"Invalid Input: The bet amount must be an integer from ${self._curr_bet + 1} (minimum bet) to ${p.stack + p.last_bet} (your maximum bet).\n")
                     # Update Caller Count
                     caller_count = 1
+                    # Mark player as the last aggressor (for Showdown phase)
+                    self._last_aggressor = p
                     # Toss Chips Into Pot
                     chips =  int(raise_amt) - p.last_bet
                     p.stack -= chips
@@ -660,14 +712,14 @@ burns a card & reveals another community card on the board:\n\
                 # FOLD:
                 elif ans == 'FOLD':
                     players.pop(i)
-                    i -= 1  # Offset to account for the increment in '# Close While-Loop'
+                    i -= 1  # Offset to account for the increment at '# Close While-Loop'
                     # Annouce Player Action 
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
                     print(f"{p.username}", end='')
                     print(" has ", end='')
                     print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
-                    print(f"{p.username}'s stack: ${p.stack}\n")
+                    print(f"{p.username}'s Stack: ${p.stack}\n")
 
             # CPU Player Turn:
             elif p.is_cpu:
@@ -700,10 +752,13 @@ burns a card & reveals another community card on the board:\n\
             # Close While-Loop
             i += 1
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-            print("DEBUG", f"{p.username}'s stack: {p.stack}")
-            print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
-            print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
+            # print("DEBUG", f"{p.username}'s stack: {p.stack}")
+            # print("DEBUG", f"{p.username}'s last bet: {p.last_bet}")
+            # print("DEBUG", f"Current Minimum Bet: {self._curr_bet}")
             # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+
+        # Print Pot
+        print(Fore.GREEN + f"\nPot ({round}): ${self._pot}\n")
 
 
 def config_table_settings() -> tuple[str, int, int, int]:
@@ -727,7 +782,7 @@ def config_table_settings() -> tuple[str, int, int, int]:
         print("\nNo worries. Let's get our table set up again.\n")
         return config_table_settings()
     else:
-        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid Input: To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
         table_confirm()
 
 def table_confirm() -> bool:
@@ -743,7 +798,7 @@ def table_confirm() -> bool:
         print("\nNo worries. Let's get our table set up again.\n")
         return False
     else:
-        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid input. To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
+        print(Style.BRIGHT + Fore.LIGHTRED_EX + "Invalid Input: To confirm your Hold'em table settings, input 'y' or 'n' and hit enter.\n")
         return table_confirm()
 
 def gen_user_player(username: str, stack: int) -> Player:
@@ -805,32 +860,45 @@ def run():
 
     # Poker Events
     # ============
-    print("\n============== Proj_8: Texas Hold'em ==============\n")
-    poker.e0_show_player_stats()
-    print("\n============== Blind Bets ==============\n")
-    poker.e1_blind_bet()
-    print("\n============== Deal: POCKET CARDS ==============\n")
-    poker.e2_deal_pocket()
-    print("\n============== Bet (1/4): PRE-FLOP ==============\n")
-    poker.e3_preflop()
-    print("\n============== Deal: FLOP ==============\n")
-    poker.e4_deal_flop()
-    print("\n============== Bet(2/4): FLOP ==============\n")
-    poker.e5_flop()
-    print("\n============== Deal: TURN ==============\n")
-    poker._handle_deals()
-    print("\n============== Bet(3/4): TURN ==============\n")
-    poker.e7_turn()
-    print("\n============== Deal: RIVER ==============\n")
-    poker.e8_deal_river()
-    print("\n============== Bet (4/4): RIVER ==============\n")
-    poker.e9_river()
-    print("\n============== SHOWDOWN ==============\n")
-    # poker.e10_showdown()
-    # poker.e11_save_data()
-    # poker.e12_prep_next_game()
-
-    # And... Repeat.
+    while True:
+        print("\n============== Proj_8: Texas Hold'em ==============\n")
+        poker.e0_show_player_stats()
+        print("\n============== Blind Bets ==============\n")
+        poker.e1_blind_bet()
+        print("\n============== Deal: POCKET CARDS ==============\n")
+        poker.e2_deal_pocket()
+        print("\n============== Bet (1/4): PRE-FLOP ==============\n")
+        if poker.e3_preflop() == False:
+            poker.e11_save_data()
+            poker.e12_prep_next_game()
+            continue
+        print("\n============== Deal: FLOP ==============\n")
+        poker.e4_deal_flop()
+        print("\n============== Bet(2/4): FLOP ==============\n")
+        if poker.e5_flop() == False:
+            poker.e11_save_data()
+            poker.e12_prep_next_game()
+            continue
+        print("\n============== Deal: TURN ==============\n")
+        poker._handle_deals()
+        print("\n============== Bet(3/4): TURN ==============\n")
+        if poker.e7_turn() == False:
+            poker.e11_save_data()
+            poker.e12_prep_next_game()
+            continue
+        print("\n============== Deal: RIVER ==============\n")
+        poker.e8_deal_river()
+        print("\n============== Bet (4/4): RIVER ==============\n")
+        if poker.e9_river() == False:
+            poker.e11_save_data()
+            poker.e12_prep_next_game()
+            continue
+        print("\n============== SHOWDOWN ==============\n")
+        poker.e10_showdown()
+        poker.e11_save_data()
+        poker.e12_prep_next_game()
+        sys.exit('bruh\n')
+        # And... Repeat.
 
 
 if __name__ == '__main__':
