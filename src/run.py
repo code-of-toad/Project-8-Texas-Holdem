@@ -44,7 +44,7 @@ class Ann:
                 'bavid blaine', 'Uncle Wong', 'Shrek', 'Donkey', 'Mrs. Lemon',
                 'Will', 'Bike', 'Unicycle', '뛰는놈', '나는놈', 'Mr. 8east',
                 '아는놈', '새', 'Chicken', 'Bread', 'Onion', 'Cheese', 'a']
-    class POKER_HANDS_RANKING(Enum):
+    class POKER_HAND_RANKING(Enum):
         ROYAL_FLUSH = 10
         STRAIGHT_FLUSH = 9
         FOUR_OF_A_KIND = 8
@@ -115,11 +115,10 @@ class Player:
         return False
     
     def get_best_hand(self, comm_cards: list[Card]
-                      ) -> tuple[list[Card], list[Card], int, str]:
+                      ) -> dict:
         """
         Written to be used within `PokerGame.e10_showdown()`.
         """
-        all_cards: list[Card] = self.hole_cards + comm_cards
         #TODO: Write an algorithm that takes a list of seven `Card` instances
         #      and determines the best possible 5-card hand that can be formed,
         #      plus an ordered list of the 
@@ -127,9 +126,41 @@ class Player:
         # Take `all_cards` and determine the 5 `Card`s that form the best
         # possible 5-card hand.
         #
-        hand: list[Card]      # Always 5 cards, exactly.
+        # EZ-Variables
+        username: str = self.username
+        cards: list[Card] = self.hole_cards + comm_cards
+        hand: list[Card]   # Always 5 cards, exactly.
         kickers: list[Card]
+        hand_rank: int
 
+        # ROYAL_FLUSH
+        # -----------
+        # Conditions:
+        #   1. Must be 10, Jack, Queen, King, Ace of the SAME suit.
+        #   2. The suit can be any of the four, 
+        #   3. 
+        pass
+
+        # STRAIGHT_FLUSH
+        # --------------
+        # FOUR_OF_A_KIND
+        # --------------
+        # FULL_HOUSE
+        # ----------
+        # FLUSH
+        # -----
+        # STRAIGHT
+        # --------
+        # THREE_OF_A_KIND
+        # ---------------
+        # TWO_PAIR
+        # --------
+        # PAIR
+        # ----
+        # HIGH_CARD
+        # ---------
+        pass
+        # return ret_dict
 
 def print_card(card: Card) -> None:
     if card.is_blk():
@@ -435,6 +466,7 @@ class PokerGame:
         last_aggressor = self._last_aggressor
         # Edge Case
         if last_aggressor is None:
+            # Start comparing hands starting from player left to the dealer.
             pass
         # 1. Collect a list of players who hold the highest-ranking hand.
         pass
