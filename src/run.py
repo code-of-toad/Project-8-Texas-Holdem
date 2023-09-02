@@ -102,29 +102,32 @@ class Player:
         self.last_bet = 0
         self.is_hum = is_hum
         self.is_cpu = not is_hum
-    
+
     def __str__(self) -> str:
         return self.username
 
     def __repr__(self) -> str:
         return self.username
-    
+
     def __eq__(self, other: Player) -> bool:
         if isinstance(other, Player):
             return self.username == other.username
         return False
-    
+
     def _sort_cards_by_rank(self, cards: list[Card]):
+        """
+        Designed to be called by `self.get_best_hand(cards)`,
+        where `cards: list[Card]`.
+        """
         pass
-    
-    def get_best_hand(self, comm_cards: list[Card]
-                      ) -> dict:
+
+    def get_best_hand(self, comm_cards: list[Card]) -> dict:
         """Designed to be called by `PokerGame.e10_showdown()`."""
         # ---------------------------------------------------------------------
         # TODO: Write an algorithm that takes a list of seven `Card` instances
-        #      and determines the best possible 5-card hand that can be formed,
-        #      plus an ordered list of high cards that can be used, optionally,
-        #      for tie-breakers.
+        #       and determines the best possible 5-card hand that can be
+        #       formed, plus an ordered list of high cards that can be used,
+        #       optionally for tie-breakers.
         #
         # Implementation Remarks:
         # -----------------------
@@ -134,27 +137,34 @@ class Player:
         # ---------------------------------------------------------------------
         #
         # EZ-Variables
-        username: str = self.username
-        cards: list[Card] = self.hole_cards + comm_cards
-        hand: list[Card] = []   # Always 5 cards, exactly.
-        hand_rank: int = 0
-        kickers_rank: list[int] = []   # Ordered list of integers representing
-                                       # high cards (i.e., kickers).
         suit_count: dict[str, int] = {'Spades': 0,
                                       'Hearts': 0,
                                       'Diamonds': 0,
                                       'Clubs': 0}
-        rank_count: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
+        rank_count_int: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
                                       6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
                                       11:0, 12:0, 13:0}
-        # Collect useful information
-        # --------------------------
+        rank_count_str: dict[int, int] = {'Ace': 0, '2': 0, '3': 0, '4': 0,
+                                          '5': 0, '6': 0, '7': 0, '8': 0,
+                                          '9': 0, '10': 0, 'Jack': 0,
+                                          'Queen': 0, 'King': 0}
+        cards: list[Card] = self.hole_cards + comm_cards
+        # Collect useful data
+        # -------------------
         # (out of 7 cards):
         #   1. Count how many times each 'suit' appears
         #   2. Count how many times each 'rank' appears (int E [1, 13])
+        #   3. Have an ordered list of ranks handy.
         for c in cards:
             suit_count[c.get_suit()] += 1
-            rank_count[c.get_rank_int()] += 1
+            rank_count_int[c.get_rank_int()] += 1
+            rank_count_str[c.get_rank_str()] += 1   # just in case
+            # TODO: Create an ordered list of tuples, where each tuple looks
+            #       like this: (rank: int, suit: str).
+            #         - Each tuple represents a card.
+            #         - ALWAYS an ordered list of 7 card-representations.
+            # --------------------------------------------------------------
+            pass
 
         # Use collected data to determine if conditions are met for either...
         # -------------------------------------------------------------------
@@ -454,7 +464,7 @@ class PokerGame:
 
     def e4_deal_flop(self):
         self._handle_deals(flop=True)
-    
+
     def e5_flop(self) -> Optional[bool]:
         return self._handle_flop_turn_river(round='Flop')
 
