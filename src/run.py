@@ -114,53 +114,63 @@ class Player:
             return self.username == other.username
         return False
     
+    def _sort_cards_by_rank(self, cards: list[Card]):
+        pass
+    
     def get_best_hand(self, comm_cards: list[Card]
                       ) -> dict:
-        """
-        Written to be used within `PokerGame.e10_showdown()`.
-        """
-        #TODO: Write an algorithm that takes a list of seven `Card` instances
+        """Designed to be called by `PokerGame.e10_showdown()`."""
+        # ---------------------------------------------------------------------
+        # TODO: Write an algorithm that takes a list of seven `Card` instances
         #      and determines the best possible 5-card hand that can be formed,
-        #      plus an ordered list of the 
+        #      plus an ordered list of high cards that can be used, optionally,
+        #      for tie-breakers.
         #
-        # Take `all_cards` and determine the 5 `Card`s that form the best
-        # possible 5-card hand.
+        # Implementation Remarks:
+        # -----------------------
+        # - Don't do completely separate individual checks for each hand type.
+        #   Instead: 1. Count the suits first to see if flush occurs;
+        #            2. Take it from there.
+        # ---------------------------------------------------------------------
         #
         # EZ-Variables
         username: str = self.username
         cards: list[Card] = self.hole_cards + comm_cards
-        hand: list[Card]   # Always 5 cards, exactly.
-        kickers: list[Card]
-        hand_rank: int
+        hand: list[Card] = []   # Always 5 cards, exactly.
+        hand_rank: int = 0
+        kickers_rank: list[int] = []   # Ordered list of integers representing
+                                       # high cards (i.e., kickers).
+        suit_count: dict[str, int] = {'Spades': 0,
+                                      'Hearts': 0,
+                                      'Diamonds': 0,
+                                      'Clubs': 0}
+        rank_count: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
+                                      6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
+                                      11:0, 12:0, 13:0}
+        # Collect useful information
+        # --------------------------
+        # (out of 7 cards):
+        #   1. Count how many times each 'suit' appears
+        #   2. Count how many times each 'rank' appears (int E [1, 13])
+        for c in cards:
+            suit_count[c.get_suit()] += 1
+            rank_count[c.get_rank_int()] += 1
 
-        # ROYAL_FLUSH
-        # -----------
-        # Conditions:
-        #   1. Must be 10, Jack, Queen, King, Ace of the SAME suit.
-        #   2. The suit can be any of the four, 
-        #   3. 
+        # Use collected data to determine if conditions are met for either...
+        # -------------------------------------------------------------------
+        #   10. Royal Flush
+        #   9. Straight Flush
+        #   8. Four of a Kind
+        #   7. Full House
+        #   6. Flush
+        #   5. Straight
+        #   4. Three of a Kind
+        #   3. Two Pair
+        #   2. Pair
+        #   1. High Card
+        # -------------------------------------------------------------------
         pass
 
-        # STRAIGHT_FLUSH
-        # --------------
-        # FOUR_OF_A_KIND
-        # --------------
-        # FULL_HOUSE
-        # ----------
-        # FLUSH
-        # -----
-        # STRAIGHT
-        # --------
-        # THREE_OF_A_KIND
-        # ---------------
-        # TWO_PAIR
-        # --------
-        # PAIR
-        # ----
-        # HIGH_CARD
-        # ---------
-        pass
-        # return ret_dict
 
 def print_card(card: Card) -> None:
     if card.is_blk():
