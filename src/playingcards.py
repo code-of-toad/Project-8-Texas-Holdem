@@ -166,18 +166,23 @@ class Card:
         >>> c2 = Card(7, 's')
         >>> c3 = Card(7, 'h')
         >>> c1 < c2
-        True
-        >>> c1 < c3
-        True
-        >>> c2 < c1
         False
+        >>> c1 < c3
+        False
+        >>> c2 < c1
+        True
         >>> c2 < c3
         False
         >>> c3 < c1
-        False
+        True
         >>> c3 < c2
         False
         """
+        if self.get_rank_str() == 'Ace':
+            return False
+        if other.get_rank_str() == 'Ace':
+            if self.get_rank_str() != 'Ace':
+                return True
         return self.get_rank_int() < other.get_rank_int()
 
 
@@ -185,22 +190,40 @@ class Card:
         """
         __Doctests:
         -----------
+        >>> c0 = Card(1, 'c')
         >>> c1 = Card(1, 's')
         >>> c2 = Card(7, 's')
         >>> c3 = Card(7, 'h')
+        >>> c4 = Card(10, 'c')
+        >>> c1 > c0
+        False
+        >>> c1 < c0
+        False
         >>> c1 > c2
-        False
+        True
         >>> c1 > c3
-        False
+        True
         >>> c2 > c1
+        False
+        >>> c4 > c3
+        True
+        >>> c4 > c1
+        False
+        >>> c4 < c1
         True
         >>> c2 > c3
         False
         >>> c3 > c1
-        True
+        False
         >>> c3 > c2
         False
         """
+        if self.get_rank_str() == 'Ace':
+            if other.get_rank_str() != 'Ace':
+                return True
+            return False
+        if other.get_rank_str() == 'Ace':
+            return False
         return self.get_rank_int() > other.get_rank_int()
 
 
@@ -208,13 +231,17 @@ class Card:
         """
         __Doctests:
         -----------
+        >>> c0 = Card(1, 'c')
         >>> c1 = Card(1, 's')
         >>> c2 = Card(7, 's')
         >>> c3 = Card(7, 'h')
-        >>> c1 <= c2
+        >>> c4 = Card(10, 'c')
+        >>> c1 <= c0
+        True
+        >>> c1 >= c0
         True
         >>> c1 <= c3
-        True
+        False
         >>> c2 <= c1
         False
         >>> c2 <= c3
@@ -224,6 +251,10 @@ class Card:
         >>> c3 <= c2
         True
         """
+        if self.get_rank_str() == 'Ace':
+            if other.get_rank_str() == 'Ace':
+                return True
+            return False
         return self.get_rank_int() <= other.get_rank_int()
 
 
@@ -231,13 +262,18 @@ class Card:
         """
         __Doctests:
         -----------
+        >>> c0 = Card(1, 'c')
         >>> c1 = Card(1, 's')
         >>> c2 = Card(7, 's')
         >>> c3 = Card(7, 'h')
+        >>> c1 >= c0
+        True
+        >>> c1 >= c0
+        True
         >>> c1 >= c2
-        False
+        True
         >>> c1 >= c3
-        False
+        True
         >>> c2 >= c1
         True
         >>> c2 >= c3
@@ -247,6 +283,10 @@ class Card:
         >>> c3 >= c2
         True
         """
+        if self.get_rank_str() == 'Ace':
+            if other.get_rank_str() == 'Ace':
+                return True
+            return True
         return self.get_rank_int() >= other.get_rank_int()
 
 
