@@ -82,6 +82,7 @@ class Ann:
                     j += 1
         return s_lst
 
+
 class Dealer:
     name: str
     deck: Deck
@@ -168,24 +169,18 @@ class Player:
                                           '5': 0, '6': 0, '7': 0, '8': 0,
                                           '9': 0, '10': 0, 'Jack': 0,
                                           'Queen': 0, 'King': 0}
-        cards: list[Card] = self.hole_cards + comm_cards
-        sorted_cards: list[Card]
+        sorted_cards: list[Card] = self.hole_cards + comm_cards
         # Collect useful data
         # -------------------
         # (out of 7 cards):
         #   1. Count how many times each 'suit' appears
         #   2. Count how many times each 'rank' appears (int E [1, 13])
         #   3. Have an ordered list of ranks handy.
-        for c in cards:
+        for c in sorted_cards:
             suit_count[c.get_suit()] += 1
             rank_count_int[c.get_rank_int()] += 1
             rank_count_str[c.get_rank_str()] += 1   # just in case
-            # TODO: Create an ordered list of tuples, where each tuple looks
-            #       like this: (rank: int, suit: str).
-            #         - Each tuple represents a card.
-            #         - ALWAYS an ordered list of 7 card-representations.
-            # --------------------------------------------------------------
-            sorted_cards = Ann.bubble_sort(cards)
+            sorted_cards: list[Card] = Ann.bubble_sort(sorted_cards)
 
         # Use collected data to determine if conditions are met for either...
         # -------------------------------------------------------------------
@@ -201,7 +196,51 @@ class Player:
         #   1. High Card
         # -------------------------------------------------------------------
         # ... Then, return the relevant data back to the caller.
-        pass
+        #
+        flush_suit = None
+        for suit in suit_count:
+            if suit >= 5:
+                flush_suit = suit
+
+        if flush_suit is not None:
+            """
+            There are five or more cards w/ the same suit.
+            Determine the hand from:
+              10. Royal Flush
+              9. Straight Flush
+              8. Four of a Kind
+              7. Full House
+              6. Flush
+            """
+            # 10. Royal Flush
+            same_suit_hand: list[Card] = []
+            kickers: list[Card] = []
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit and len(same_suit_hand) < 6:
+                    same_suit_hand.append(c)
+                else:
+                    kickers.append(c)
+            # Now, check:
+            # rf_hand == [f1, f13, f12, f11, f10]
+            # kickers == [z2, z1]
+            if same_suit_hand[0].get_rank_int == 1 \
+            and same_suit_hand[1].get_rank_int == 13 \
+            and same_suit_hand[2].get_rank_int == 12 \
+            and same_suit_hand[3].get_rank_int == 11 \
+            and same_suit_hand[4].get_rank_int == 10 \
+            and len(same_suit_hand) == 5:
+                return 10, same_suit_hand, kickers, self.username
+            
+        else:
+            """
+            Determine the hand from:
+              5. Straight
+              4. Three of a Kind
+              3. Two Pair
+              2. Pair
+              1. High Card
+            """
+            pass
 
 
 def print_card(card: Card) -> None:
@@ -743,7 +782,7 @@ burns a card & reveals another community card on the board:\n\
                     print("\n" + Fore.CYAN + f"{p.username}" + Style.RESET_ALL + f": Call.")
                     # Print Pot
                     print(f"Pot: ${self._pot} (Your Stack: ${p.stack})\n")
-                
+
                 # CHECK:
                 elif ans == 'CHECK':
                     # Update Caller Count
@@ -839,12 +878,12 @@ def config_table_settings() -> tuple[str, int, int, int]:
     """
     Prompt user input for configuring game settings.
     """
-    print("---------- TABLE SETUP ----------")
+    print("----------- TABLE SETUP -----------")
     username = input("   - Username: ")
     player_count = input("   - Number of seats: ")
     buyin_amt = input("   - Buy-in (min. $100): $")
     min_bet = input("   - Minimum bet: $")
-    print("---------------------------------")
+    print("-----------------------------------")
     print("  ^")
     # return username, int(player_count), int(buyin_amt), int(min_bet), table_confirm()
 
