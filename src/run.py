@@ -444,7 +444,7 @@ class PokerGame:
                     # Annouce Player Action 
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
-                    print(f"{p.username}", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
                     print(" has ", end='')
                     print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s Stack: ${p.stack}\n")
@@ -790,7 +790,7 @@ burns a card & reveals another community card on the board:\n\
                     # Annouce Player Action 
                     print("\n" + Fore.LIGHTMAGENTA_EX + f"{dealer}", end='')
                     print(": ", end='')
-                    print(f"{p.username}", end='')
+                    print(Fore.CYAN + f"{p.username}", end='')
                     print(" has ", end='')
                     print(Fore.RED + "folded" + Style.RESET_ALL + ". ")
                     print(f"{p.username}'s Stack: ${p.stack}\n")
