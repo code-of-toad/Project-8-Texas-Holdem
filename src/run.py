@@ -60,7 +60,27 @@ class Ann:
     def shuffle_ai_names() -> list[str]:
         rand.shuffle(Ann.AI_NAMES)
         return Ann.AI_NAMES
+    
+    @staticmethod
+    def bubble_sort(lst: list[Any]) -> list[Any]:
+        """
+        Return a sorted version of `lst`, from highest to lowest,
+        from left to right.
 
+        NOTE: All items in `lst` must be data types whose `__lt__`, `__gt__`,
+        `__eq__`, `__le__`, `__ge__` methods are defined in relation to each
+        other.
+        """
+        s_lst = lst.copy()
+        for _ in range(len(s_lst)-1):
+            i = 0
+            j = 1
+            for _ in range(len(s_lst)-1):
+                if s_lst[i] < s_lst[j]:
+                    s_lst.insert(i, s_lst.pop(j))
+                    i += 1
+                    j += 1
+        return s_lst
 
 class Dealer:
     name: str
@@ -69,7 +89,7 @@ class Dealer:
     def __init__(self, name: str) -> None:
         self.name = name
         self.deck = Deck()
-    
+
     def draw(self) -> Card:
         return self.deck.draw()
 
@@ -142,13 +162,14 @@ class Player:
                                       'Diamonds': 0,
                                       'Clubs': 0}
         rank_count_int: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
-                                      6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
-                                      11:0, 12:0, 13:0}
+                                          6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
+                                          11: 0, 12: 0, 13: 0}
         rank_count_str: dict[int, int] = {'Ace': 0, '2': 0, '3': 0, '4': 0,
                                           '5': 0, '6': 0, '7': 0, '8': 0,
                                           '9': 0, '10': 0, 'Jack': 0,
                                           'Queen': 0, 'King': 0}
         cards: list[Card] = self.hole_cards + comm_cards
+        sorted_cards: list[Card]
         # Collect useful data
         # -------------------
         # (out of 7 cards):
@@ -164,7 +185,7 @@ class Player:
             #         - Each tuple represents a card.
             #         - ALWAYS an ordered list of 7 card-representations.
             # --------------------------------------------------------------
-            pass
+            sorted_cards = Ann.bubble_sort(cards)
 
         # Use collected data to determine if conditions are met for either...
         # -------------------------------------------------------------------
@@ -179,6 +200,7 @@ class Player:
         #   2. Pair
         #   1. High Card
         # -------------------------------------------------------------------
+        # ... Then, return the relevant data back to the caller.
         pass
 
 
@@ -959,3 +981,20 @@ if __name__ == '__main__':
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
     run()
+
+
+    # -------------------------------------------------------------------------
+    # print()
+
+    # c1 = Card(1, 'h')
+    # c2 = Card(13, 'h')
+    # c3 = Card(12, 'h')
+    # c4 = Card(7, 'd')
+    # c5 = Card(7, 'h')
+    # c6 = Card(3, 'h')
+    # c7 = Card(3, 's')
+
+    # lst1 = [c1, c2, c3, c4, c5, c6, c7]
+    # lst2 = Ann.bubble_sort(lst1)
+    # print(lst1)
+    # print(lst2, end='\n\n')
