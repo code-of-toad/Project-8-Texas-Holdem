@@ -305,6 +305,7 @@ class Player:
 
             # 6. Flush
             # --------
+            # EZ-Variables: Flush
             flush: list[Card] = []
             kickers: list[Card] = []
             for c in sorted_cards:
@@ -314,9 +315,30 @@ class Player:
                     kickers.append(c)
             return 6, flush, kickers, self.username
 
-        # Flush conditions have NOT been met.
+        # 8. Four of a Kind
+        # -----------------
+        elif fook_rank is not None:
+            # EZ-Variables: Four of a Kind
+            fook: list[Card] = []
+            kickers: list[Card] = []
+            for c in sorted_cards:
+                if c.get_rank_int() == fook_rank:
+                    fook.append(c)
+                else:
+                    kickers.append(c)
+            return 8, fook, kickers, self.username
+        
         else:
-            pass
+            """
+            Determine the hand from:
+              7. Full House
+              5. Straight
+              4. Three of a Kind
+              3. Two Pair
+              2. Pair
+              1. High Card
+            """
+
 
 
 def print_card(card: Card) -> None:
