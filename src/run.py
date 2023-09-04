@@ -66,6 +66,8 @@ class Ann:
         """
         Return a sorted version of `lst`, from highest to lowest,
         from left to right.
+        
+        NOTE: This method does NOT mutate the arg list.
 
         NOTE: All items in `lst` must be data types whose `__lt__`, `__gt__`,
         `__eq__`, `__le__`, `__ge__` methods are defined in relation to each
@@ -176,7 +178,7 @@ class Player:
         # (out of 7 cards):
         #   1. Count how many times each 'suit' appears
         #   2. Count how many times each 'rank' appears (int E [1, 13])
-        #   3. Have an ordered list of ranks handy.
+        #   3. Have a descending-order list of ranks handy.
         for c in sorted_cards:
             suit_count[c.get_suit()] += 1
             rank_count_int[c.get_rank_int()] += 1
@@ -226,7 +228,7 @@ class Player:
                 else:
                     kickers.append(c)
             # Check if Royal Flush conditions have been met.
-            if royal_flush[0].get_rank_int == 1 \
+            if royal_flush[0].get_rank_str == 'Ace' \
             and royal_flush[1].get_rank_int == 13 \
             and royal_flush[2].get_rank_int == 12 \
             and royal_flush[3].get_rank_int == 11 \
@@ -243,43 +245,61 @@ class Player:
             for c in sorted_cards:
                 if c.get_suit() == flush_suit:
                     same_suits.append(c)
+                else:
+                    kickers.append(c)
+            len(same_suits): int   # ALWAYS 5 | 6 | 7.
+
             # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
-            if same_suits[0] == 1:
-                for i in range(3):
-                    if same_suits[i+1] == 5:
+            if same_suits[0].get_rank_str() == 'Ace':
+                for i in range(1, len(same_suits)-3):
+                    if same_suits[i].get_rank_int() == 5:
                         # Assemble low-straight flush hand.
-                        str8_flush += [same_suits[i+1] + same_suits[i+2] +
-                                       same_suits[i+3] + same_suits[i+4] +
+                        str8_flush += [same_suits[i] + same_suits[i+1] +
+                                       same_suits[i+2] + same_suits[i+3] +
                                        same_suits[0]]
                         # Assemble kickers.
-                        if i == 0:
-                            kickers = [same_suits[5], same_suits[6]]
-                        elif i == 1:
-                            kickers = [same_suits[1], same_suits[6]]
-                        elif i == 2:
-                            kickers = [same_suits[1], same_suits[2]]
+                        if len(same_suits) == 7:
+                            if i == 1:
+                                kickers += [same_suits[5], same_suits[6]]
+                            elif i == 2:
+                                kickers += [same_suits[1], same_suits[6]]
+                            elif i == 3:
+                                kickers += [same_suits[1], same_suits[2]]
+                        elif len(same_suits) == 6:
+                            if i == 1:
+                                kickers.append(same_suits[5])
+                            elif i == 2:
+                                kickers.append(same_suits[1])
                         # Return Low-Straight Flush
-                        return 9, str8_flush, kickers, self.username
+                        return 9, str8_flush, Ann.bubble_sort(kickers), self.username
             # Regular Cases
-            for i in range(3):
+            for i in range(len(same_suits)-4):
+                # Check if the next five cards are straight (descending order).
+                # Remember: Cases where 'Ace' is the highest card are handled
+                #           already.
                 if same_suits[i].get_rank_int()-1 == same_suits[i+1].get_rank_int() \
                 and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
                 and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
-                and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int() \
-                and same_suits[i].get_rank_int()-5 == same_suits[i+5].get_rank_int():
+                and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int():
                     # Assemble flush hand.
                     str8_flush += [same_suits[i] + same_suits[i+1] +
                                    same_suits[i+2] + same_suits[i+3] +
                                    same_suits[i+4]]
                     # Assemble kickers.
-                    if i == 0:
-                        kickers = [same_suits[5], same_suits[6]]
-                    elif i == 1:
-                        kickers = [same_suits[1], same_suits[6]]
-                    elif i == 2:
-                        kickers = [same_suits[1], same_suits[2]]
+                    if len(same_suits) == 7:
+                        if i == 0:
+                            kickers = [same_suits[5], same_suits[6]]
+                        elif i == 1:
+                            kickers = [same_suits[0], same_suits[6]]
+                        elif i == 2:
+                            kickers = [same_suits[0], same_suits[1]]
+                    elif len(same_suits) == 6:
+                        if i == 0:
+                            kickers.append(same_suits[5])
+                        elif i == 1:
+                            kickers.append(same_suits[0])
                     # Return Straight Flush
-                    return 9, str8_flush, kickers, self.username
+                    return 9, str8_flush, Ann.bubble_sort(kickers), self.username
 
             # 8. Four of a Kind
             # -----------------
