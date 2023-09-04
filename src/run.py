@@ -76,7 +76,7 @@ class Ann:
             i = 0
             j = 1
             for _ in range(len(s_lst)-1):
-                print(i, j)
+                # print('DEBUGGGGGGGGGGGGGG', i, j)
                 if s_lst[i] < s_lst[j]:
                     s_lst.insert(i, s_lst.pop(j))
                 i += 1
@@ -259,9 +259,6 @@ class Player:
                 if True:
                     str8_count += 1
 
-
-                
-            
             # 8. Four of a Kind
             # -----------------
 
@@ -1059,15 +1056,16 @@ if __name__ == '__main__':
     # -------------------------------------------------------------------------
     print()
 
-    c1 = Card(1, 'h')
-    c2 = Card(13, 'h')
-    c3 = Card(12, 'h')
-    c4 = Card(7, 'd')
-    c5 = Card(7, 'h')
-    c6 = Card(3, 'h')
-    c7 = Card(3, 's')
+    c1 = Card(1, 's')
+    c2 = Card(1, 'h')
+    c3 = Card(1, 'd')
+    c4 = Card(1, 'c')
+    c5 = Card(7, 's')
+    c6 = Card(7, 'h')
+    c7 = Card(7, 'd')
+    c8 = Card(7, 'c')
 
-    lst1 = [c4, c7, c1, c6, c5, c7, c2]
+    lst1 = [c4, c7, c8, c1, c6, c5, c3, c2]
     lst2 = Ann.bubble_sort(lst1)
     print(lst1)
     print(lst2, end='\n\n')
