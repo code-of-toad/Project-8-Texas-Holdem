@@ -76,10 +76,11 @@ class Ann:
             i = 0
             j = 1
             for _ in range(len(s_lst)-1):
+                print(i, j)
                 if s_lst[i] < s_lst[j]:
                     s_lst.insert(i, s_lst.pop(j))
-                    i += 1
-                    j += 1
+                i += 1
+                j += 1
         return s_lst
 
 
@@ -180,7 +181,7 @@ class Player:
             suit_count[c.get_suit()] += 1
             rank_count_int[c.get_rank_int()] += 1
             rank_count_str[c.get_rank_str()] += 1   # just in case
-            sorted_cards: list[Card] = Ann.bubble_sort(sorted_cards)
+            sorted_cards: tuple[Card] = tuple(Ann.bubble_sort(sorted_cards))
 
         # Use collected data to determine if conditions are met for either...
         # -------------------------------------------------------------------
@@ -213,24 +214,57 @@ class Player:
               6. Flush
             """
             # 10. Royal Flush
-            same_suit_hand: list[Card] = []
+            # ---------------
+            royal_flush: list[Card] = []
             kickers: list[Card] = []
             for c in sorted_cards:
-                if c.get_suit() == flush_suit and len(same_suit_hand) < 6:
-                    same_suit_hand.append(c)
+                if c.get_suit() == flush_suit and len(royal_flush) < 6:
+                    royal_flush.append(c)
                 else:
                     kickers.append(c)
             # Now, check:
             # rf_hand == [f1, f13, f12, f11, f10]
             # kickers == [z2, z1]
-            if same_suit_hand[0].get_rank_int == 1 \
-            and same_suit_hand[1].get_rank_int == 13 \
-            and same_suit_hand[2].get_rank_int == 12 \
-            and same_suit_hand[3].get_rank_int == 11 \
-            and same_suit_hand[4].get_rank_int == 10 \
-            and len(same_suit_hand) == 5:
-                return 10, same_suit_hand, kickers, self.username
+            if royal_flush[0].get_rank_int == 1 \
+            and royal_flush[1].get_rank_int == 13 \
+            and royal_flush[2].get_rank_int == 12 \
+            and royal_flush[3].get_rank_int == 11 \
+            and royal_flush[4].get_rank_int == 10 \
+            and len(royal_flush) == 5:
+                return 10, royal_flush, kickers, self.username
             
+            # 9. Straight Flush
+            # -----------------
+            same_suits = list[Card] = []   # NEVER contains duplicate ranks.
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit:
+                    same_suits.append(c)
+            # Iterate three times thru `same_suits`.
+            str8_flush: list[Card] = []
+            kickers: list[Card] = []
+            # Edge Case: The first card in `same_suits` is an 'Ace'.
+            if same_suits[0] == 1:
+                for i in range(3):
+                    # Edge Case: LOWEST = 'Ace'
+                    if same_suits[i+1] == 5:
+                        str8_flush += [same_suits[i+1] + same_suits[i+2] +
+                                       same_suits[i+3] + same_suits[i+4] +
+                                       same_suits[0]]
+                        return 9, str8_flush, kickers, self.username
+            # Regular Cases
+            highest_card: Card = same_suits[0]
+            str8_count = 0
+            # Check the next 6 cards.
+            for i in range(1, 7):
+                if True:
+                    str8_count += 1
+
+
+                
+            
+            # 8. Four of a Kind
+            # -----------------
+
         else:
             """
             Determine the hand from:
@@ -1019,21 +1053,21 @@ if __name__ == '__main__':
     #     run()
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
-    run()
+    # run()
 
 
     # -------------------------------------------------------------------------
-    # print()
+    print()
 
-    # c1 = Card(1, 'h')
-    # c2 = Card(13, 'h')
-    # c3 = Card(12, 'h')
-    # c4 = Card(7, 'd')
-    # c5 = Card(7, 'h')
-    # c6 = Card(3, 'h')
-    # c7 = Card(3, 's')
+    c1 = Card(1, 'h')
+    c2 = Card(13, 'h')
+    c3 = Card(12, 'h')
+    c4 = Card(7, 'd')
+    c5 = Card(7, 'h')
+    c6 = Card(3, 'h')
+    c7 = Card(3, 's')
 
-    # lst1 = [c1, c2, c3, c4, c5, c6, c7]
-    # lst2 = Ann.bubble_sort(lst1)
-    # print(lst1)
-    # print(lst2, end='\n\n')
+    lst1 = [c4, c7, c1, c6, c5, c7, c2]
+    lst2 = Ann.bubble_sort(lst1)
+    print(lst1)
+    print(lst2, end='\n\n')
