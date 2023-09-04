@@ -203,6 +203,7 @@ class Player:
             if suit >= 5:
                 flush_suit = suit
 
+        # Flush conditions have been met.
         if flush_suit is not None:
             """
             There are five or more cards w/ the same suit.
@@ -215,16 +216,16 @@ class Player:
             """
             # 10. Royal Flush
             # ---------------
+            # EZ-Variables: Royal Flush
             royal_flush: list[Card] = []
             kickers: list[Card] = []
+            # Assemble royal_flush hand & kickers.
             for c in sorted_cards:
                 if c.get_suit() == flush_suit and len(royal_flush) < 6:
                     royal_flush.append(c)
                 else:
                     kickers.append(c)
-            # Now, check:
-            # rf_hand == [f1, f13, f12, f11, f10]
-            # kickers == [z2, z1]
+            # Check if Royal Flush conditions have been met.
             if royal_flush[0].get_rank_int == 1 \
             and royal_flush[1].get_rank_int == 13 \
             and royal_flush[2].get_rank_int == 12 \
@@ -235,33 +236,65 @@ class Player:
             
             # 9. Straight Flush
             # -----------------
+            # EZ-Variables: Straight Flush
+            str8_flush: list[Card] = []
+            kickers: list[Card] = []
             same_suits = list[Card] = []   # NEVER contains duplicate ranks.
             for c in sorted_cards:
                 if c.get_suit() == flush_suit:
                     same_suits.append(c)
-            # Iterate three times thru `same_suits`.
-            str8_flush: list[Card] = []
-            kickers: list[Card] = []
-            # Edge Case: The first card in `same_suits` is an 'Ace'.
+            # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
             if same_suits[0] == 1:
                 for i in range(3):
-                    # Edge Case: LOWEST = 'Ace'
                     if same_suits[i+1] == 5:
+                        # Assemble low-straight flush hand.
                         str8_flush += [same_suits[i+1] + same_suits[i+2] +
                                        same_suits[i+3] + same_suits[i+4] +
                                        same_suits[0]]
+                        # Assemble kickers.
+                        if i == 0:
+                            kickers = [same_suits[5], same_suits[6]]
+                        elif i == 1:
+                            kickers = [same_suits[1], same_suits[6]]
+                        elif i == 2:
+                            kickers = [same_suits[1], same_suits[2]]
+                        # Return Low-Straight Flush
                         return 9, str8_flush, kickers, self.username
             # Regular Cases
-            highest_card: Card = same_suits[0]
-            str8_count = 0
-            # Check the next 6 cards.
-            for i in range(1, 7):
-                if True:
-                    str8_count += 1
+            for i in range(3):
+                if same_suits[i].get_rank_int()-1 == same_suits[i+1].get_rank_int() \
+                and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
+                and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
+                and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int() \
+                and same_suits[i].get_rank_int()-5 == same_suits[i+5].get_rank_int():
+                    # Assemble flush hand.
+                    str8_flush += [same_suits[i] + same_suits[i+1] +
+                                   same_suits[i+2] + same_suits[i+3] +
+                                   same_suits[i+4]]
+                    # Assemble kickers.
+                    if i == 0:
+                        kickers = [same_suits[5], same_suits[6]]
+                    elif i == 1:
+                        kickers = [same_suits[1], same_suits[6]]
+                    elif i == 2:
+                        kickers = [same_suits[1], same_suits[2]]
+                    # Return Straight Flush
+                    return 9, str8_flush, kickers, self.username
 
             # 8. Four of a Kind
             # -----------------
+            # EZ-Variables: Four of a Kind
 
+            # 7. Full House
+            # -----------------
+            # EZ-Variables: Full House
+
+            # 6. Flush
+            # -----------------
+            # EZ-Variables: Flush
+
+
+        # Flush conditions have NOT been met.
         else:
             """
             Determine the hand from:
