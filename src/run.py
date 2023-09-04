@@ -172,18 +172,18 @@ class Player:
                                           '5': 0, '6': 0, '7': 0, '8': 0,
                                           '9': 0, '10': 0, 'Jack': 0,
                                           'Queen': 0, 'King': 0}
-        sorted_cards: list[Card] = self.hole_cards + comm_cards
+        cards = self.hole_cards + comm_cards
+        sorted_cards: tuple[Card] = tuple(Ann.bubble_sort(cards))
         # Collect useful data
         # -------------------
         # (out of 7 cards):
         #   1. Count how many times each 'suit' appears
         #   2. Count how many times each 'rank' appears (int E [1, 13])
         #   3. Have a descending-order list of ranks handy.
-        for c in sorted_cards:
+        for c in cards:
             suit_count[c.get_suit()] += 1
             rank_count_int[c.get_rank_int()] += 1
             rank_count_str[c.get_rank_str()] += 1   # just in case
-            sorted_cards: tuple[Card] = tuple(Ann.bubble_sort(sorted_cards))
 
         # Use collected data to determine if conditions are met for either...
         # -------------------------------------------------------------------
@@ -200,10 +200,14 @@ class Player:
         # -------------------------------------------------------------------
         # ... Then, return the relevant data back to the caller.
         #
-        flush_suit = None
+        flush_suit: Optional[str] = None
         for suit in suit_count:
             if suit >= 5:
                 flush_suit = suit
+        fook_rank: Optional[int] = None
+        for rank, count in rank_count_int.items():
+            if count == 4:
+                fook_rank = rank
 
         # Flush conditions have been met.
         if flush_suit is not None:
@@ -212,8 +216,6 @@ class Player:
             Determine the hand from:
               10. Royal Flush
               9. Straight Flush
-              8. Four of a Kind
-              7. Full House
               6. Flush
             """
             # 10. Royal Flush
@@ -223,31 +225,31 @@ class Player:
             kickers: list[Card] = []
             # Assemble royal_flush hand & kickers.
             for c in sorted_cards:
-                if c.get_suit() == flush_suit and len(royal_flush) < 6:
+                if c.get_suit() == flush_suit and len(royal_flush) <= 5:
                     royal_flush.append(c)
                 else:
                     kickers.append(c)
             # Check if Royal Flush conditions have been met.
-            if royal_flush[0].get_rank_str == 'Ace' \
-            and royal_flush[1].get_rank_int == 13 \
-            and royal_flush[2].get_rank_int == 12 \
-            and royal_flush[3].get_rank_int == 11 \
-            and royal_flush[4].get_rank_int == 10 \
-            and len(royal_flush) == 5:
+            if royal_flush[0].get_rank_str() == 'Ace' and len(royal_flush) == 5 \
+              and royal_flush[1].get_rank_int() == 13 \
+              and royal_flush[2].get_rank_int() == 12 \
+              and royal_flush[3].get_rank_int() == 11 \
+              and royal_flush[4].get_rank_int() == 10:
                 return 10, royal_flush, kickers, self.username
-            
+
             # 9. Straight Flush
             # -----------------
             # EZ-Variables: Straight Flush
             str8_flush: list[Card] = []
             kickers: list[Card] = []
-            same_suits = list[Card] = []   # NEVER contains duplicate ranks.
+            same_suits: list[Card] = []   # NEVER contains duplicate ranks.
             for c in sorted_cards:
                 if c.get_suit() == flush_suit:
                     same_suits.append(c)
                 else:
                     kickers.append(c)
-            len(same_suits): int   # ALWAYS 5 | 6 | 7.
+            # len(same_suits): int         # ALWAYS 5 | 6 | 7.
+            len(same_suits) == 5 | 6 | 7
 
             # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
             if same_suits[0].get_rank_str() == 'Ace':
@@ -278,9 +280,9 @@ class Player:
                 # Remember: Cases where 'Ace' is the highest card are handled
                 #           already.
                 if same_suits[i].get_rank_int()-1 == same_suits[i+1].get_rank_int() \
-                and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
-                and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
-                and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int():
+                  and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
+                  and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
+                  and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int():
                     # Assemble flush hand.
                     str8_flush += [same_suits[i] + same_suits[i+1] +
                                    same_suits[i+2] + same_suits[i+3] +
@@ -301,29 +303,19 @@ class Player:
                     # Return Straight Flush
                     return 9, str8_flush, Ann.bubble_sort(kickers), self.username
 
-            # 8. Four of a Kind
-            # -----------------
-            # EZ-Variables: Four of a Kind
-
-            # 7. Full House
-            # -----------------
-            # EZ-Variables: Full House
-
             # 6. Flush
-            # -----------------
-            # EZ-Variables: Flush
-
+            # --------
+            flush: list[Card] = []
+            kickers: list[Card] = []
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit and len(flush) <= 5:
+                    flush.append(c)
+                else:
+                    kickers.append(c)
+            return 6, flush, kickers, self.username
 
         # Flush conditions have NOT been met.
         else:
-            """
-            Determine the hand from:
-              5. Straight
-              4. Three of a Kind
-              3. Two Pair
-              2. Pair
-              1. High Card
-            """
             pass
 
 
@@ -351,7 +343,7 @@ class PokerGame:
     _big_blind: int
     _sml_blind: int
     _buyin_amt: int
-    _hands_played: int    # increment everytime a game ends successfully
+    _hands_played: int   # increment everytime a game ends successfully
 
     def __init__(self,
                  dealer: Dealer,
@@ -1030,10 +1022,10 @@ def run():
     ) = config_table_settings()
     if not TABLE_CONFIRMED:
         (
-        username,         #TODO: Implement a recursive input babysitter.
-        player_count,     #      This code is faulty. Currently, there's no
-        buyin_amt,        #      recursion happening here. It breaks after two
-        min_bet,          #      complete init prompt cycles.
+        username,         # TODO: Implement a recursive input babysitter.
+        player_count,     #       This code is faulty. Currently, there's no
+        buyin_amt,        #       recursion happening here. It breaks after two
+        min_bet,          #       complete init prompt cycles.
         TABLE_CONFIRMED
         ) = config_table_settings()
     # print(f'{username}, {player_count}, {buyin_amt}, {min_bet}, {TABLE_CONFIRMED}')
@@ -1103,22 +1095,22 @@ if __name__ == '__main__':
     #     run()
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
-    # run()
-
+    run()
 
     # -------------------------------------------------------------------------
-    print()
 
-    c1 = Card(1, 's')
-    c2 = Card(1, 'h')
-    c3 = Card(1, 'd')
-    c4 = Card(1, 'c')
-    c5 = Card(7, 's')
-    c6 = Card(7, 'h')
-    c7 = Card(7, 'd')
-    c8 = Card(7, 'c')
+    # print()
 
-    lst1 = [c4, c7, c8, c1, c6, c5, c3, c2]
-    lst2 = Ann.bubble_sort(lst1)
-    print(lst1)
-    print(lst2, end='\n\n')
+    # c1 = Card(1, 's')
+    # c2 = Card(1, 'h')
+    # c3 = Card(1, 'd')
+    # c4 = Card(1, 'c')
+    # c5 = Card(7, 's')
+    # c6 = Card(7, 'h')
+    # c7 = Card(7, 'd')
+    # c8 = Card(7, 'c')
+
+    # lst1 = [c4, c7, c8, c1, c6, c5, c3, c2]
+    # lst2 = Ann.bubble_sort(lst1)
+    # print(lst1)
+    # print(lst2, end='\n\n')
