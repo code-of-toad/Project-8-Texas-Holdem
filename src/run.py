@@ -60,7 +60,7 @@ class Ann:
     def shuffle_ai_names() -> list[str]:
         rand.shuffle(Ann.AI_NAMES)
         return Ann.AI_NAMES
-    
+
     @staticmethod
     def bubble_sort(lst: list[Any]) -> list[Any]:
         """
@@ -138,13 +138,6 @@ class Player:
             return self.username == other.username
         return False
 
-    def _sort_cards_by_rank(self, cards: list[Card]):
-        """
-        Designed to be called by `self.get_best_hand(cards)`,
-        where `cards: list[Card]`.
-        """
-        pass
-
     def get_best_hand(self, comm_cards: list[Card]) -> dict:
         """Designed to be called by `PokerGame.e10_showdown()`."""
         # ---------------------------------------------------------------------
@@ -206,36 +199,39 @@ class Player:
             if suit >= 5:
                 flush_suit = suit
 
-        # Condition Check: Four of a Kind (fook)
-        fook_rank: Optional[int] = None
+        # Condition Check: Four of a Kind (foak)
+        foak_rank: Optional[int] = None
         for rank, count in rank_count_int.items():
             if count == 4:
-                fook_rank = rank
+                foak_rank = rank
 
-        # Condition Check: Three of a Kind (took)
-        took_rank: Optional[int] = None
-        took_ranks = []
+        # Condition Check: Three of a Kind (toak)
+        toak_rank: Optional[int] = None
+        _toak_ranks = []
         for rank, count in rank_count_int.items():
             if count == 3:
-                took_ranks.append(rank)
-        took_ranks.sort(reverse=True)
-        if took_ranks[-1] == 1:
-            took_rank = took_ranks[-1]
+                _toak_ranks.append(rank)
+        _toak_ranks.sort(reverse=True)
+
+        if _toak_ranks[-1] == 1:
+            toak_rank = _toak_ranks[-1]
         else:
-            took_rank = took_ranks[0]
+            toak_rank = _toak_ranks[0]
 
         # Condition Check: Pair Variants
         pair_ranks: Optional[list[int]] = None
+        _pair_ranks = []
         for rank, count in rank_count_int.items():
             if count == 2:
-                pair_ranks.append(rank)
-        pair_ranks.sort(reverse=True)
-        if pair_ranks[-1] == 1:
-            pair_ranks.insert(0, pair_ranks.pop())
-        if took_ranks is not None:
-            pair_ranks = pair_ranks[:1]
+                _pair_ranks.append(rank)
+        _pair_ranks.sort(reverse=True)
+        if _pair_ranks[-1] == 1:
+            _pair_ranks.insert(0, _pair_ranks.pop())
+
+        if toak_rank is not None:
+            pair_ranks = _pair_ranks[:1]
         else:
-            pair_ranks = pair_ranks[:2]
+            pair_ranks = _pair_ranks[:2]
 
 
         # Flush conditions have been met.
@@ -345,45 +341,49 @@ class Player:
 
         # 8. Four of a Kind
         # -----------------
-        elif fook_rank is not None:
+        elif foak_rank is not None:
             # EZ-Variables: Four of a Kind
-            fook: list[Card] = []
+            foak: list[Card] = []
             kickers: list[Card] = []
             for c in sorted_cards:
-                if c.get_rank_int() == fook_rank:
-                    fook.append(c)
+                if c.get_rank_int() == foak_rank:
+                    foak.append(c)
                 else:
                     kickers.append(c)
-            return 8, fook, kickers, self.username
-        
+            return 8, foak, kickers, self.username
+
         # 7. Full House
         # -------------
-        elif took_rank is not None and pair_ranks is not None:
+        elif toak_rank is not None and pair_ranks is not None:
             # EZ-Variables: Full House
             full_house: list[Card] = []
             kickers: list[Card] = []
             # Assemble full house hand
             for c in sorted_cards:
-                if c.get_rank_int() == took_rank:
+                if c.get_rank_int() == toak_rank:
                     full_house.append(c)
             for c in sorted_cards:
                 if c.get_rank_int() in pair_ranks:
                     full_house.append(c)
                 # Assemble Kickers
-                elif c.get_rank_int() != took_rank:
+                elif c.get_rank_int() != toak_rank:
                     kickers.append(c)
             return 7, full_house, kickers, self.username
-        
-        # 5. Straight
-        # -----------
-        # EZ-Variables: Straight
-        str8: list[Card] = []
-        kickers: list[Card] = []
-        # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
-        for i in range(3):
-            pass
-        # Regular Cases
-        for i in range(3):
+
+        # if none of the above...
+        else:
+            """
+            5. Straight
+            4. Three of a Kind
+            3. Two Pair
+            2. Pair
+            1. High Card
+            """
+            # 5. Straight
+            # -----------
+            # EZ-Variables: Straight
+            str8: list[Card] = []
+            kickers: list[Card] = []
             pass
 
         # 4. Three of a Kind
