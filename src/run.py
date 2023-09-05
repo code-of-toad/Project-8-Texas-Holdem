@@ -200,14 +200,43 @@ class Player:
         # -------------------------------------------------------------------
         # ... Then, return the relevant data back to the caller.
         #
+        # Condition Check: Flush Variants
         flush_suit: Optional[str] = None
         for suit in suit_count:
             if suit >= 5:
                 flush_suit = suit
+
+        # Condition Check: Four of a Kind (fook)
         fook_rank: Optional[int] = None
         for rank, count in rank_count_int.items():
             if count == 4:
                 fook_rank = rank
+
+        # Condition Check: Three of a Kind (took)
+        took_rank: Optional[int] = None
+        took_ranks = []
+        for rank, count in rank_count_int.items():
+            if count == 3:
+                took_ranks.append(rank)
+        took_ranks.sort(reverse=True)
+        if took_ranks[-1] == 1:
+            took_rank = took_ranks[-1]
+        else:
+            took_rank = took_ranks[0]
+
+        # Condition Check: Pair Variants
+        pair_ranks: Optional[list[int]] = None
+        for rank, count in rank_count_int.items():
+            if count == 2:
+                pair_ranks.append(rank)
+        pair_ranks.sort(reverse=True)
+        if pair_ranks[-1] == 1:
+            pair_ranks.insert(0, pair_ranks.pop())
+        if took_ranks is not None:
+            pair_ranks = pair_ranks[:1]
+        else:
+            pair_ranks = pair_ranks[:2]
+
 
         # Flush conditions have been met.
         if flush_suit is not None:
@@ -248,7 +277,6 @@ class Player:
                     same_suits.append(c)
                 else:
                     kickers.append(c)
-            # len(same_suits): int         # ALWAYS 5 | 6 | 7.
             len(same_suits) == 5 | 6 | 7
 
             # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
@@ -328,18 +356,55 @@ class Player:
                     kickers.append(c)
             return 8, fook, kickers, self.username
         
-        else:
-            """
-            Determine the hand from:
-              7. Full House
-              5. Straight
-              4. Three of a Kind
-              3. Two Pair
-              2. Pair
-              1. High Card
-            """
+        # 7. Full House
+        # -------------
+        elif took_rank is not None and pair_ranks is not None:
+            # EZ-Variables: Full House
+            full_house: list[Card] = []
+            kickers: list[Card] = []
+            # Assemble full house hand
+            for c in sorted_cards:
+                if c.get_rank_int() == took_rank:
+                    full_house.append(c)
+            for c in sorted_cards:
+                if c.get_rank_int() in pair_ranks:
+                    full_house.append(c)
+                # Assemble Kickers
+                elif c.get_rank_int() != took_rank:
+                    kickers.append(c)
+            return 7, full_house, kickers, self.username
+        
+        # 5. Straight
+        # -----------
+        # EZ-Variables: Straight
+        str8: list[Card] = []
+        kickers: list[Card] = []
+        # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
+        for i in range(3):
+            pass
+        # Regular Cases
+        for i in range(3):
+            pass
 
+        # 4. Three of a Kind
+        # ------------------
+        # EZ-Variables: Three of a Kind
+        pass
 
+        # 3. Two Pair
+        # -----------
+        # EZ-Variables: Two Pair
+        pass
+
+        # 2. Pair
+        # -------
+        # EZ-Variables: Pair
+        pass
+
+        # 1. High Card
+        # ------------
+        # EZ-Variables: High Card
+        pass
 
 def print_card(card: Card) -> None:
     if card.is_blk():
