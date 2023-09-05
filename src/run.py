@@ -384,7 +384,33 @@ class Player:
             # EZ-Variables: Straight
             str8: list[Card] = []
             kickers: list[Card] = []
-            pass
+            # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
+            rank_seen_so_far: Optional[int] = None
+            if sorted_cards[0].get_rank_str() == 'Ace':
+                str8.append(sorted_cards[0])
+                for i in range(1, 7):
+                    if rank_seen_so_far is None:
+                        if sorted_cards[i].get_rank_int() == 5:
+                            rank_seen_so_far = 5
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 5:
+                        if sorted_cards[i].get_rank_int() == 4:
+                            rank_seen_so_far = 4
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 4:
+                        if sorted_cards[i].get_rank_int() == 3:
+                            rank_seen_so_far = 3
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 3:
+                        if sorted_cards[i].get_rank_int() == 2:
+                            rank_seen_so_far = 2
+                            str8.append(sorted_cards[i])
+            if rank_seen_so_far == 2:
+                for c in sorted_cards:
+                    if c not in str8:
+                        kickers.append(c)
+                return 5, str8, kickers, self.username
+
 
         # 4. Three of a Kind
         # ------------------
