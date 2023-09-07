@@ -195,23 +195,27 @@ class Player:
         # Prep Crew
         # =========
         # Condition: Flush
-        cnd_flush = False
+        cnd_flush: bool = False
+        flush_suit: Optional[str] = None
         for suit, count in suit_count.items():
             if count == 5:
                 cnd_flush = True
+                flush_suit = suit
         # Condition: Four of a Kind
-        cnd_foak = False
+        cnd_foak: bool = False
+        foak_rank: Optional[int] = None
         for rank, count in rank_count.items():
             if count == 4:
                 cnd_foak = True
+                foak_rank = rank
         # Condition: Three of a Kind
-        cnd_toak = False
+        cnd_toak: bool = False
         for rank, count in rank_count.items():
             if count == 3:
                 cnd_toak = True
         # Condition: Two Pair and/or Pair
-        cnd_2pair = False
-        cnd_pair = False
+        cnd_2pair: bool = False
+        cnd_pair: bool = False
         for rank, count in rank_count.items():
             if count == 2:
                 if cnd_pair is False:
