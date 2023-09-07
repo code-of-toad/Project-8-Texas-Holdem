@@ -66,24 +66,24 @@ class Ann:
         """
         Return a sorted version of `lst`, from highest to lowest,
         from left to right.
-        
+
         NOTE: This method does NOT mutate the arg list.
 
         NOTE: All items in `lst` must be data types whose `__lt__`, `__gt__`,
         `__eq__`, `__le__`, `__ge__` methods are defined in relation to each
         other.
         """
-        s_lst = lst.copy()
-        for _ in range(len(s_lst)-1):
+        retlst = lst.copy()
+        for _ in range(len(retlst)-1):
             i = 0
             j = 1
-            for _ in range(len(s_lst)-1):
+            for _ in range(len(retlst)-1):
                 # print('DEBUGGGGGGGGGGGGGG', i, j)
-                if s_lst[i] < s_lst[j]:
-                    s_lst.insert(i, s_lst.pop(j))
+                if retlst[i] < retlst[j]:
+                    retlst.insert(i, retlst.pop(j))
                 i += 1
                 j += 1
-        return s_lst
+        return retlst
 
 
 class Dealer:
@@ -137,305 +137,28 @@ class Player:
         if isinstance(other, Player):
             return self.username == other.username
         return False
-
-    def get_best_hand_ARCHIVE_01(self, comm_cards: list[Card]) -> dict:
-        """Designed to be called by `PokerGame.e10_showdown()`."""
-        # ---------------------------------------------------------------------
-        # TODO: Write an algorithm that takes a list of seven `Card` instances
-        #       and determines the best possible 5-card hand that can be
-        #       formed, plus an ordered list of high cards that can be used,
-        #       optionally for tie-breakers.
-        #
-        # Implementation Remarks:
-        # -----------------------
-        # - Don't do completely separate individual checks for each hand type.
-        #   Instead: 1. Count the suits first to see if flush occurs;
-        #            2. Take it from there.
-        # ---------------------------------------------------------------------
-        #
-        # EZ-Variables
-        suit_count: dict[str, int] = {'Spades': 0,
-                                      'Hearts': 0,
-                                      'Diamonds': 0,
-                                      'Clubs': 0}
-        rank_count_int: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
-                                          6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
-                                          11: 0, 12: 0, 13: 0}
-        rank_count_str: dict[int, int] = {'Ace': 0, '2': 0, '3': 0, '4': 0,
-                                          '5': 0, '6': 0, '7': 0, '8': 0,
-                                          '9': 0, '10': 0, 'Jack': 0,
-                                          'Queen': 0, 'King': 0}
-        cards = self.hole_cards + comm_cards
-        sorted_cards: tuple[Card] = tuple(Ann.bubble_sort(cards))
-        # Collect useful data
-        # -------------------
-        # (out of 7 cards):
-        #   1. Count how many times each 'suit' appears
-        #   2. Count how many times each 'rank' appears (int E [1, 13])
-        #   3. Have a descending-order list of ranks handy.
-        for c in cards:
-            suit_count[c.get_suit()] += 1
-            rank_count_int[c.get_rank_int()] += 1
-            rank_count_str[c.get_rank_str()] += 1   # just in case
-
-        # Use collected data to determine if conditions are met for either...
-        # -------------------------------------------------------------------
-        #   10. Royal Flush
-        #   9. Straight Flush
-        #   8. Four of a Kind
-        #   7. Full House
-        #   6. Flush
-        #   5. Straight
-        #   4. Three of a Kind
-        #   3. Two Pair
-        #   2. Pair
-        #   1. High Card
-        # -------------------------------------------------------------------
-        # ... Then, return the relevant data back to the caller.
-        #
-        # Condition Check: Flush Variants
-        flush_suit: Optional[str] = None
-        for suit in suit_count:
-            if suit >= 5:
-                flush_suit = suit
-
-        # Condition Check: Four of a Kind (foak)
-        foak_rank: Optional[int] = None
-        for rank, count in rank_count_int.items():
-            if count == 4:
-                foak_rank = rank
-
-        # Condition Check: Three of a Kind (toak)
-        toak_rank: Optional[int] = None
-        _toak_ranks = []
-        for rank, count in rank_count_int.items():
-            if count == 3:
-                _toak_ranks.append(rank)
-        _toak_ranks.sort(reverse=True)
-
-        if _toak_ranks[-1] == 1:
-            toak_rank = _toak_ranks[-1]
-        else:
-            toak_rank = _toak_ranks[0]
-
-        # Condition Check: Pair Variants
-        pair_ranks: Optional[list[int]] = None
-        _pair_ranks = []
-        for rank, count in rank_count_int.items():
-            if count == 2:
-                _pair_ranks.append(rank)
-        _pair_ranks.sort(reverse=True)
-        if _pair_ranks[-1] == 1:
-            _pair_ranks.insert(0, _pair_ranks.pop())
-
-        if toak_rank is not None:
-            pair_ranks = _pair_ranks[:1]
-        else:
-            pair_ranks = _pair_ranks[:2]
+    
+    def get_best_hand(self, community_cards: list[Card]):
+        """
+        Designed to be called by `PokerGame.e10_showdown()`.
+        
+        Texas Hold'em: Hands
+        ====================
+        10. Royal Flush
+        9. Straight Flush
+        8. Four of a Kind
+        7. Full House
+        6. Flush
+        5. Straight
+        4. Three of a Kind
+        3. Two Pair
+        2. Pair
+        1. High Card
+        """
+        cards_pre = [c for c in community_cards] + self.hole_cards
+        cards: list[Card, Card, Card, Card, Card, Card, Card] = Ann.bubble_sort(cards_pre)
 
 
-        # Flush conditions have been met.
-        if flush_suit is not None:
-            """
-            There are five or more cards w/ the same suit.
-            Determine the hand from:
-              10. Royal Flush
-              9. Straight Flush
-              6. Flush
-            """
-            # 10. Royal Flush
-            # ---------------
-            # EZ-Variables: Royal Flush
-            royal_flush: list[Card] = []
-            kickers: list[Card] = []
-            # Assemble royal_flush hand & kickers.
-            for c in sorted_cards:
-                if c.get_suit() == flush_suit and len(royal_flush) <= 5:
-                    royal_flush.append(c)
-                else:
-                    kickers.append(c)
-            # Check if Royal Flush conditions have been met.
-            if royal_flush[0].get_rank_str() == 'Ace' and len(royal_flush) == 5 \
-              and royal_flush[1].get_rank_int() == 13 \
-              and royal_flush[2].get_rank_int() == 12 \
-              and royal_flush[3].get_rank_int() == 11 \
-              and royal_flush[4].get_rank_int() == 10:
-                return 10, royal_flush, kickers, self.username
-
-            # 9. Straight Flush
-            # -----------------
-            # EZ-Variables: Straight Flush
-            str8_flush: list[Card] = []
-            kickers: list[Card] = []
-            same_suits: list[Card] = []   # NEVER contains duplicate ranks.
-            for c in sorted_cards:
-                if c.get_suit() == flush_suit:
-                    same_suits.append(c)
-                else:
-                    kickers.append(c)
-            len(same_suits) == 5 | 6 | 7
-
-            # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
-            if same_suits[0].get_rank_str() == 'Ace':
-                for i in range(1, len(same_suits)-3):
-                    if same_suits[i].get_rank_int() == 5:
-                        # Assemble low-straight flush hand.
-                        str8_flush += [same_suits[i] + same_suits[i+1] +
-                                       same_suits[i+2] + same_suits[i+3] +
-                                       same_suits[0]]
-                        # Assemble kickers.
-                        if len(same_suits) == 7:
-                            if i == 1:
-                                kickers += [same_suits[5], same_suits[6]]
-                            elif i == 2:
-                                kickers += [same_suits[1], same_suits[6]]
-                            elif i == 3:
-                                kickers += [same_suits[1], same_suits[2]]
-                        elif len(same_suits) == 6:
-                            if i == 1:
-                                kickers.append(same_suits[5])
-                            elif i == 2:
-                                kickers.append(same_suits[1])
-                        # Return Low-Straight Flush
-                        return 9, str8_flush, Ann.bubble_sort(kickers), self.username
-            # Regular Cases
-            for i in range(len(same_suits)-4):
-                # Check if the next five cards are straight (descending order).
-                # Remember: Cases where 'Ace' is the highest card are handled
-                #           already.
-                if same_suits[i].get_rank_int()-1 == same_suits[i+1].get_rank_int() \
-                  and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
-                  and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
-                  and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int():
-                    # Assemble flush hand.
-                    str8_flush += [same_suits[i] + same_suits[i+1] +
-                                   same_suits[i+2] + same_suits[i+3] +
-                                   same_suits[i+4]]
-                    # Assemble kickers.
-                    if len(same_suits) == 7:
-                        if i == 0:
-                            kickers = [same_suits[5], same_suits[6]]
-                        elif i == 1:
-                            kickers = [same_suits[0], same_suits[6]]
-                        elif i == 2:
-                            kickers = [same_suits[0], same_suits[1]]
-                    elif len(same_suits) == 6:
-                        if i == 0:
-                            kickers.append(same_suits[5])
-                        elif i == 1:
-                            kickers.append(same_suits[0])
-                    # Return Straight Flush
-                    return 9, str8_flush, Ann.bubble_sort(kickers), self.username
-
-            # 6. Flush
-            # --------
-            # EZ-Variables: Flush
-            flush: list[Card] = []
-            kickers: list[Card] = []
-            for c in sorted_cards:
-                if c.get_suit() == flush_suit and len(flush) <= 5:
-                    flush.append(c)
-                else:
-                    kickers.append(c)
-            return 6, flush, kickers, self.username
-
-        # 8. Four of a Kind
-        # -----------------
-        elif foak_rank is not None:
-            # EZ-Variables: Four of a Kind
-            foak: list[Card] = []
-            kickers: list[Card] = []
-            for c in sorted_cards:
-                if c.get_rank_int() == foak_rank:
-                    foak.append(c)
-                else:
-                    kickers.append(c)
-            return 8, foak, kickers, self.username
-
-        # 7. Full House
-        # -------------
-        elif toak_rank is not None and pair_ranks is not None:
-            # EZ-Variables: Full House
-            full_house: list[Card] = []
-            kickers: list[Card] = []
-            # Assemble full house hand
-            for c in sorted_cards:
-                if c.get_rank_int() == toak_rank:
-                    full_house.append(c)
-            for c in sorted_cards:
-                if c.get_rank_int() in pair_ranks:
-                    full_house.append(c)
-                # Assemble Kickers
-                elif c.get_rank_int() != toak_rank:
-                    kickers.append(c)
-            return 7, full_house, kickers, self.username
-
-        # if none of the above...
-        else:
-            """
-            5. Straight
-            4. Three of a Kind
-            3. Two Pair
-            2. Pair
-            1. High Card
-            """
-            # 5. Straight
-            # -----------
-            # EZ-Variables: Straight
-            str8: list[Card] = []
-            kickers: list[Card] = []
-            rank_seen_so_far: Optional[int] = None
-            # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
-            if sorted_cards[0].get_rank_str() == 'Ace':
-                for i in range(1, 7):
-                    if rank_seen_so_far is None:
-                        if sorted_cards[i].get_rank_int() == 5:
-                            rank_seen_so_far = 5
-                            str8.append(sorted_cards[i])
-                    elif rank_seen_so_far == 5:
-                        if sorted_cards[i].get_rank_int() == 4:
-                            rank_seen_so_far = 4
-                            str8.append(sorted_cards[i])
-                    elif rank_seen_so_far == 4:
-                        if sorted_cards[i].get_rank_int() == 3:
-                            rank_seen_so_far = 3
-                            str8.append(sorted_cards[i])
-                    elif rank_seen_so_far == 3:
-                        if sorted_cards[i].get_rank_int() == 2:
-                            rank_seen_so_far = 2
-                            str8.append(sorted_cards[i])
-                            str8.append(sorted_cards[0])
-                if rank_seen_so_far == 2:
-                    for c in sorted_cards:
-                        if c not in str8:
-                            kickers.append(c)
-                    return 5, str8, kickers, self.username
-            # Regular Cases
-            else:
-                pass
-                
-
-
-
-        # 4. Three of a Kind
-        # ------------------
-        # EZ-Variables: Three of a Kind
-        pass
-
-        # 3. Two Pair
-        # -----------
-        # EZ-Variables: Two Pair
-        pass
-
-        # 2. Pair
-        # -------
-        # EZ-Variables: Pair
-        pass
-
-        # 1. High Card
-        # ------------
-        # EZ-Variables: High Card
-        pass
 
 def print_card(card: Card) -> None:
     if card.is_blk():
@@ -1232,3 +955,308 @@ if __name__ == '__main__':
     # lst2 = Ann.bubble_sort(lst1)
     # print(lst1)
     # print(lst2, end='\n\n')
+
+
+
+
+
+
+    def get_best_hand_ARCHIVE_01(self, comm_cards: list[Card]) -> dict:
+        """Designed to be called by `PokerGame.e10_showdown()`."""
+        # ---------------------------------------------------------------------
+        # TODO: Write an algorithm that takes a list of seven `Card` instances
+        #       and determines the best possible 5-card hand that can be
+        #       formed, plus an ordered list of high cards that can be used,
+        #       optionally for tie-breakers.
+        #
+        # Implementation Remarks:
+        # -----------------------
+        # - Don't do completely separate individual checks for each hand type.
+        #   Instead: 1. Count the suits first to see if flush occurs;
+        #            2. Take it from there.
+        # ---------------------------------------------------------------------
+        #
+        # EZ-Variables
+        suit_count: dict[str, int] = {'Spades': 0,
+                                      'Hearts': 0,
+                                      'Diamonds': 0,
+                                      'Clubs': 0}
+        rank_count_int: dict[int, int] = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0,
+                                          6: 0, 7: 0, 8: 0, 9: 0, 10: 0,
+                                          11: 0, 12: 0, 13: 0}
+        rank_count_str: dict[int, int] = {'Ace': 0, '2': 0, '3': 0, '4': 0,
+                                          '5': 0, '6': 0, '7': 0, '8': 0,
+                                          '9': 0, '10': 0, 'Jack': 0,
+                                          'Queen': 0, 'King': 0}
+        cards = self.hole_cards + comm_cards
+        sorted_cards: tuple[Card] = tuple(Ann.bubble_sort(cards))
+        # Collect useful data
+        # -------------------
+        # (out of 7 cards):
+        #   1. Count how many times each 'suit' appears
+        #   2. Count how many times each 'rank' appears (int E [1, 13])
+        #   3. Have a descending-order list of ranks handy
+        for c in cards:
+            suit_count[c.get_suit()] += 1
+            rank_count_int[c.get_rank_int()] += 1
+            rank_count_str[c.get_rank_str()] += 1   # just in case
+
+        # Use collected data to determine if conditions are met for either...
+        # -------------------------------------------------------------------
+        #   10. Royal Flush
+        #   9. Straight Flush
+        #   8. Four of a Kind
+        #   7. Full House
+        #   6. Flush
+        #   5. Straight
+        #   4. Three of a Kind
+        #   3. Two Pair
+        #   2. Pair
+        #   1. High Card
+        # -------------------------------------------------------------------
+        # ... Then, return the relevant data back to the caller.
+        #
+        # Condition Check: Flush Variants
+        flush_suit: Optional[str] = None
+        for suit in suit_count:
+            if suit >= 5:
+                flush_suit = suit
+
+        # Condition Check: Four of a Kind (foak)
+        foak_rank: Optional[int] = None
+        for rank, count in rank_count_int.items():
+            if count == 4:
+                foak_rank = rank
+
+        # Condition Check: Three of a Kind (toak)
+        toak_rank: Optional[int] = None
+        _toak_ranks = []
+        for rank, count in rank_count_int.items():
+            if count == 3:
+                _toak_ranks.append(rank)
+        _toak_ranks.sort(reverse=True)
+
+        if _toak_ranks[-1] == 1:
+            toak_rank = _toak_ranks[-1]
+        else:
+            toak_rank = _toak_ranks[0]
+
+        # Condition Check: Pair Variants
+        pair_ranks: Optional[list[int]] = None
+        _pair_ranks = []
+        for rank, count in rank_count_int.items():
+            if count == 2:
+                _pair_ranks.append(rank)
+        _pair_ranks.sort(reverse=True)
+        if _pair_ranks[-1] == 1:
+            _pair_ranks.insert(0, _pair_ranks.pop())
+
+        if toak_rank is not None:
+            pair_ranks = _pair_ranks[:1]
+        else:
+            pair_ranks = _pair_ranks[:2]
+
+
+        # Flush conditions have been met.
+        if flush_suit is not None:
+            """
+            There are five or more cards w/ the same suit.
+            Determine the hand from:
+              10. Royal Flush
+              9. Straight Flush
+              6. Flush
+            """
+            # 10. Royal Flush
+            # ---------------
+            # EZ-Variables: Royal Flush
+            royal_flush: list[Card] = []
+            kickers: list[Card] = []
+            # Assemble royal_flush hand & kickers.
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit and len(royal_flush) <= 5:
+                    royal_flush.append(c)
+                else:
+                    kickers.append(c)
+            # Check if Royal Flush conditions have been met.
+            if royal_flush[0].get_rank_str() == 'Ace' and len(royal_flush) == 5 \
+              and royal_flush[1].get_rank_int() == 13 \
+              and royal_flush[2].get_rank_int() == 12 \
+              and royal_flush[3].get_rank_int() == 11 \
+              and royal_flush[4].get_rank_int() == 10:
+                return 10, royal_flush, kickers, self.username
+
+            # 9. Straight Flush
+            # -----------------
+            # EZ-Variables: Straight Flush
+            str8_flush: list[Card] = []
+            kickers: list[Card] = []
+            same_suits: list[Card] = []   # NEVER contains duplicate ranks.
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit:
+                    same_suits.append(c)
+                else:
+                    kickers.append(c)
+            len(same_suits) == 5 | 6 | 7
+
+            # Edge Case: Low Straight Flush, where 'Ace' is the LOWEST ranking.
+            if same_suits[0].get_rank_str() == 'Ace':
+                for i in range(1, len(same_suits)-3):
+                    if same_suits[i].get_rank_int() == 5:
+                        # Assemble low-straight flush hand.
+                        str8_flush += [same_suits[i] + same_suits[i+1] +
+                                       same_suits[i+2] + same_suits[i+3] +
+                                       same_suits[0]]
+                        # Assemble kickers.
+                        if len(same_suits) == 7:
+                            if i == 1:
+                                kickers += [same_suits[5], same_suits[6]]
+                            elif i == 2:
+                                kickers += [same_suits[1], same_suits[6]]
+                            elif i == 3:
+                                kickers += [same_suits[1], same_suits[2]]
+                        elif len(same_suits) == 6:
+                            if i == 1:
+                                kickers.append(same_suits[5])
+                            elif i == 2:
+                                kickers.append(same_suits[1])
+                        # Return Low-Straight Flush
+                        return 9, str8_flush, Ann.bubble_sort(kickers), self.username
+            # Regular Cases
+            for i in range(len(same_suits)-4):
+                # Check if the next five cards are straight (descending order).
+                # Remember: Cases where 'Ace' is the highest card are handled
+                #           already.
+                if same_suits[i].get_rank_int()-1 == same_suits[i+1].get_rank_int() \
+                  and same_suits[i].get_rank_int()-2 == same_suits[i+2].get_rank_int() \
+                  and same_suits[i].get_rank_int()-3 == same_suits[i+3].get_rank_int() \
+                  and same_suits[i].get_rank_int()-4 == same_suits[i+4].get_rank_int():
+                    # Assemble flush hand.
+                    str8_flush += [same_suits[i] + same_suits[i+1] +
+                                   same_suits[i+2] + same_suits[i+3] +
+                                   same_suits[i+4]]
+                    # Assemble kickers.
+                    if len(same_suits) == 7:
+                        if i == 0:
+                            kickers = [same_suits[5], same_suits[6]]
+                        elif i == 1:
+                            kickers = [same_suits[0], same_suits[6]]
+                        elif i == 2:
+                            kickers = [same_suits[0], same_suits[1]]
+                    elif len(same_suits) == 6:
+                        if i == 0:
+                            kickers.append(same_suits[5])
+                        elif i == 1:
+                            kickers.append(same_suits[0])
+                    # Return Straight Flush
+                    return 9, str8_flush, Ann.bubble_sort(kickers), self.username
+
+            # 6. Flush
+            # --------
+            # EZ-Variables: Flush
+            flush: list[Card] = []
+            kickers: list[Card] = []
+            for c in sorted_cards:
+                if c.get_suit() == flush_suit and len(flush) <= 5:
+                    flush.append(c)
+                else:
+                    kickers.append(c)
+            return 6, flush, kickers, self.username
+
+        # 8. Four of a Kind
+        # -----------------
+        elif foak_rank is not None:
+            # EZ-Variables: Four of a Kind
+            foak: list[Card] = []
+            kickers: list[Card] = []
+            for c in sorted_cards:
+                if c.get_rank_int() == foak_rank:
+                    foak.append(c)
+                else:
+                    kickers.append(c)
+            return 8, foak, kickers, self.username
+
+        # 7. Full House
+        # -------------
+        elif toak_rank is not None and pair_ranks is not None:
+            # EZ-Variables: Full House
+            full_house: list[Card] = []
+            kickers: list[Card] = []
+            # Assemble full house hand
+            for c in sorted_cards:
+                if c.get_rank_int() == toak_rank:
+                    full_house.append(c)
+            for c in sorted_cards:
+                if c.get_rank_int() in pair_ranks:
+                    full_house.append(c)
+                # Assemble Kickers
+                elif c.get_rank_int() != toak_rank:
+                    kickers.append(c)
+            return 7, full_house, kickers, self.username
+
+        # if none of the above...
+        else:
+            """
+            5. Straight
+            4. Three of a Kind
+            3. Two Pair
+            2. Pair
+            1. High Card
+            """
+            # 5. Straight
+            # -----------
+            # EZ-Variables: Straight
+            str8: list[Card] = []
+            kickers: list[Card] = []
+            rank_seen_so_far: Optional[int] = None
+            # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
+            if sorted_cards[0].get_rank_str() == 'Ace':
+                for i in range(1, 7):
+                    if rank_seen_so_far is None:
+                        if sorted_cards[i].get_rank_int() == 5:
+                            rank_seen_so_far = 5
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 5:
+                        if sorted_cards[i].get_rank_int() == 4:
+                            rank_seen_so_far = 4
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 4:
+                        if sorted_cards[i].get_rank_int() == 3:
+                            rank_seen_so_far = 3
+                            str8.append(sorted_cards[i])
+                    elif rank_seen_so_far == 3:
+                        if sorted_cards[i].get_rank_int() == 2:
+                            rank_seen_so_far = 2
+                            str8.append(sorted_cards[i])
+                            str8.append(sorted_cards[0])
+                if rank_seen_so_far == 2:
+                    for c in sorted_cards:
+                        if c not in str8:
+                            kickers.append(c)
+                    return 5, str8, kickers, self.username
+            # Regular Cases
+            else:
+                pass
+                
+
+
+
+        # 4. Three of a Kind
+        # ------------------
+        # EZ-Variables: Three of a Kind
+        pass
+
+        # 3. Two Pair
+        # -----------
+        # EZ-Variables: Two Pair
+        pass
+
+        # 2. Pair
+        # -------
+        # EZ-Variables: Pair
+        pass
+
+        # 1. High Card
+        # ------------
+        # EZ-Variables: High Card
+        pass
+
