@@ -138,7 +138,7 @@ class Player:
             return self.username == other.username
         return False
 
-    def get_best_hand(self, comm_cards: list[Card]) -> dict:
+    def get_best_hand_ARCHIVE_01(self, comm_cards: list[Card]) -> dict:
         """Designed to be called by `PokerGame.e10_showdown()`."""
         # ---------------------------------------------------------------------
         # TODO: Write an algorithm that takes a list of seven `Card` instances
@@ -384,10 +384,9 @@ class Player:
             # EZ-Variables: Straight
             str8: list[Card] = []
             kickers: list[Card] = []
-            # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
             rank_seen_so_far: Optional[int] = None
+            # Edge Case: Low Straight, where 'Ace' is the LOWEST rank.
             if sorted_cards[0].get_rank_str() == 'Ace':
-                str8.append(sorted_cards[0])
                 for i in range(1, 7):
                     if rank_seen_so_far is None:
                         if sorted_cards[i].get_rank_int() == 5:
@@ -405,11 +404,17 @@ class Player:
                         if sorted_cards[i].get_rank_int() == 2:
                             rank_seen_so_far = 2
                             str8.append(sorted_cards[i])
-            if rank_seen_so_far == 2:
-                for c in sorted_cards:
-                    if c not in str8:
-                        kickers.append(c)
-                return 5, str8, kickers, self.username
+                            str8.append(sorted_cards[0])
+                if rank_seen_so_far == 2:
+                    for c in sorted_cards:
+                        if c not in str8:
+                            kickers.append(c)
+                    return 5, str8, kickers, self.username
+            # Regular Cases
+            else:
+                pass
+                
+
 
 
         # 4. Three of a Kind
