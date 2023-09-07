@@ -143,7 +143,7 @@ class Player:
         Designed to be called by `PokerGame.e10_showdown()`.
         
         Texas Hold'em: Hands
-        ====================
+        --------------------
         10. Royal Flush
         9. Straight Flush
         8. Four of a Kind
@@ -154,10 +154,70 @@ class Player:
         3. Two Pair
         2. Pair
         1. High Card
+
+        __Dev Notes
+        -----------
+        Let the `int` representation of a card's rank be an integer member of
+        the set [2, 14], where:  2 = "2",
+                                10 = "10",
+                                13 = "King",
+                                14 = "Ace".
+        This is done to reduce the number of edge cases that must be
+        implemented if "Ace" were to be assigned to the `int` value, 1.
         """
         cards_pre = [c for c in community_cards] + self.hole_cards
-        cards: list[Card, Card, Card, Card, Card, Card, Card] = Ann.bubble_sort(cards_pre)
+        cards: list[Card] = Ann.bubble_sort(cards_pre)
+        suit_count: dict[str, int] = {suit: 0 for suit in Ann.SUITS_STR}
+        rank_count: dict[int, int] = {rank: 0 for rank in range(2, 15)}
+        for c in cards:
+            # Count collection of suits.
+            suit_count[c.get_suit()] += 1
+            # Count collection of ranks.
+            if c.get_rank_int() == 1:
+                rank_count[14] += 1
+            else:
+                rank_count[c.get_rank_int()] += 1
 
+        # ------------- INVENTORY -------------
+        # cards: list[Card]
+        #   :
+        #   +---> Contains all 7 cards in descending order.
+        #
+        # suit_count: dict[str, int]
+        #   :
+        #   +---> Counts how many of each suit are present in `cards`
+        #
+        # rank_count: dict[int, int]
+        #   :
+        #   +---> Counts how many of each rank are present in `cards`
+        #         NOTE: 14 = 'Ace'
+
+        # Prep Crew
+        # =========
+        # Condition: Flush
+        cnd_flush = False
+        for suit, count in suit_count.items():
+            if count == 5:
+                cnd_flush = True
+        # Condition: Four of a Kind
+        cnd_foak = False
+        for rank, count in rank_count.items():
+            if count == 4:
+                cnd_foak = True
+        # Condition: Three of a Kind
+        cnd_toak = False
+        for rank, count in rank_count.items():
+            if count == 3:
+                cnd_toak = True
+        # Condition: Two Pair and/or Pair
+        cnd_2pair = False
+        cnd_pair = False
+        for rank, count in rank_count.items():
+            if count == 2:
+                if cnd_pair is False:
+                    cnd_pair = True
+                else:
+                    cnd_2pair = True
 
 
 def print_card(card: Card) -> None:
@@ -936,28 +996,58 @@ if __name__ == '__main__':
     #     run()
     # except:
     #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
-    run()
 
-    # -------------------------------------------------------------------------
+    DEBUG_MODE = False
+    # DEBUG_MODE = True    # Uncomment this line to debug and/or test code.
+    if DEBUG_MODE is False:
+        run()
+    else:
+        print()
 
-    # print()
+        c1 = Card(1, 's')
+        c2 = Card(8, 'h')
+        c3 = Card(2, 'd')
+        c4 = Card(1, 'c')
+        c5 = Card(3, 's')
+        c6 = Card(7, 'h')
+        c7 = Card(6, 'd')
+        c8 = Card(11, 'c')
 
-    # c1 = Card(1, 's')
-    # c2 = Card(1, 'h')
-    # c3 = Card(1, 'd')
-    # c4 = Card(1, 'c')
-    # c5 = Card(7, 's')
-    # c6 = Card(7, 'h')
-    # c7 = Card(7, 'd')
-    # c8 = Card(7, 'c')
+        # lst1 = [c4, c7, c8, c1, c6, c5, c3, c2]
+        # lst2 = Ann.bubble_sort(lst1)
+        # print(lst1)
+        # print(lst2, end='\n\n')
+        comm_cards = [c1, c2, c3, c4, c5]
+        hole_cards = [c8, c7]
+        cards_pre = [c for c in comm_cards] + hole_cards
+        cards: list[Card] = Ann.bubble_sort(cards_pre)
+        suit_count: dict[str, int] = {suit: 0 for suit in Ann.SUITS_STR}
+        rank_count: dict[int, int] = {rank: 0 for rank in range(2, 15)}
 
-    # lst1 = [c4, c7, c8, c1, c6, c5, c3, c2]
-    # lst2 = Ann.bubble_sort(lst1)
-    # print(lst1)
-    # print(lst2, end='\n\n')
+        print()
+        pprint(cards_pre)
+        print()
+        pprint(cards)
+        print()
+        pprint(suit_count)
+        print()
+        pprint(rank_count)
+        print()
 
+        for c in cards:
+            # Count collection of suits.
+            suit_count[c.get_suit()] += 1
+            # Count collection of ranks.
+            if c.get_rank_int() == 1:
+                rank_count[14] += 1
+            else:
+                rank_count[c.get_rank_int()] += 1
 
-
+        print()
+        pprint(suit_count)
+        print()
+        pprint(rank_count)
+        print()
 
 
 
