@@ -137,11 +137,11 @@ class Player:
         if isinstance(other, Player):
             return self.username == other.username
         return False
-    
+
     def get_best_hand(self, community_cards: list[Card]):
         """
         Designed to be called by `PokerGame.e10_showdown()`.
-        
+
         Texas Hold'em: Hands
         --------------------
         10. Royal Flush
@@ -222,6 +222,30 @@ class Player:
                     cnd_pair = True
                 else:
                     cnd_2pair = True
+
+        # Determine Hands
+        # ===============
+        if cnd_flush:
+            """
+            Check for:
+               10. Royal Flush
+                9. Straight Flush
+                6. Flush
+            """
+            pass
+
+        else:
+            """
+            #todo
+                8. Four of a Kind
+                7. Full House
+                5. Straight
+                4. Three of a Kind
+                3. Two Pair
+                2. Pair
+                1. High Card
+            """
+            pass
 
 
 def print_card(card: Card) -> None:
