@@ -138,7 +138,7 @@ class Player:
             return self.username == other.username
         return False
 
-    def get_best_hand(self, community_cards: list[Card]):
+    def get_best_hand(self, community_cards: list[Card]) -> dict:
         """
         Designed to be called by `PokerGame.e10_showdown()`.
 
@@ -237,17 +237,87 @@ class Player:
                 9. Straight Flush
                 6. Flush
             """
+            # -----------------
             # 10. Royal Flush
             # ---------------
-            pass
+            # card: list[Card*7], descending order
+            royal_flush: list[Card] = []
+            kickers_10: list[Card] = []
 
+            # Iterate thru `cards` to generate your hand.
+            i_count: int = 0
+
+            # Check each of the seven `cards` one at a time.
+            for c in cards:
+                # No `flush suit` card has been detected yet.
+                if i_count == 0: 
+                    if c.get_rank_str() == 'Ace' and c.get_suit() == flush_suit:
+                        royal_flush.append(c)
+                    else:
+                        kickers_10.append(c)
+                elif i_count == 1:
+                    if c.get_rank_str() == 'King' and c.get_suit() == flush_suit:
+                        royal_flush.append(c)
+                    else:
+                        kickers_10.append(c)
+                elif i_count == 2:
+                    if c.get_rank_str() == 'Queen' and c.get_suit() == flush_suit:
+                        royal_flush.append(c)
+                    else:
+                        kickers_10.append(c)
+                elif i_count == 3:
+                    if c.get_rank_str() == 'Jack' and c.get_suit() == flush_suit:
+                        royal_flush.append(c)
+                    else:
+                        kickers_10.append(c)
+                elif i_count == 4:
+                    if c.get_rank_str() == '10' and c.get_suit() == flush_suit:
+                        royal_flush.append(c)
+                    else:
+                        kickers_10.append(c)
+                else:
+                    kickers_10.append(c)
+                i_count += 1
+                    
+            # Final Check: Royal Flush
+            if i_count == 5:
+                return {'hand_rank': 10,
+                        'hand_type': royal_flush,
+                        'kickers': kickers_10}
+            
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+            print()
+            print(royal_flush)
+            print(kickers_10)
+            # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+
+            # -----------------
             # 9. Straight Flush
             # -----------------
-            pass
+            # card: list[Card*7], descending order
+            str8_flush: list[Card] = []
+            kickers_9: list[Card] = []
 
+            #TODO
+
+            if NotImplemented:    #TODO
+                return {'hand_rank': 9,
+                        'hand_type': str8_flush,
+                        'kickers': kickers_9}
+
+            # --------
             # 6. Flush
             # --------
-            pass
+            # card: list[Card*7], descending order
+            flush: list[Card] = []
+            kickers_6: list[Card] = []
+
+            #TODO
+
+            if NotImplemented:    #TODO
+                return {'hand_rank': 6,
+                        'hand_type': flush,
+                        'kickers': kickers_6}
 
         else:
             """
@@ -588,9 +658,21 @@ class PokerGame:
         self._hands_played += 1
         # Save data locally.
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        print('DEBUGGGGGGGGGGGGG at `e11_save_data()', self._hands_played)
+        self._DEBUG()
         # DEBUGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
-        pass
+
+    def _DEBUG(self) -> None:
+        """DEBUG"""
+        print('DEBUGGGGGGGGGGGGG at `e11_save_data()`', self._hands_played)
+
+        print()
+        pprint(self._comm_cards)
+        print()
+        for player in self._players_queue:
+            if player.is_hum:
+                pprint(self._comm_cards + player.hole_cards)
+                print()
+        pprint(self._players_queue)
 
     def e12_prep_next_game(self):
         """Reset this instance of `PokerGame` for the upcoming new hand."""
@@ -1035,15 +1117,13 @@ def run():
 
 
 if __name__ == '__main__':
-    # try:
-    #     run()
-    # except:
-    #     sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
-
-    DEBUG_MODE = False
-    # DEBUG_MODE = True    # Uncomment this line to debug and/or test code.
-    if DEBUG_MODE is False:
-        run()
+    DEV_MODE = False
+    # DEV_MODE = True          # UNCOMMENT this line to debug and/or test code #
+    if DEV_MODE is False:
+        try:
+            run()
+        except:
+            sys.exit('\n\n\n  [[ EXIT GAME ]]  \n  ---------------\n  keep ya head up\n')
     else:
         print()
 
@@ -1094,7 +1174,116 @@ if __name__ == '__main__':
 
 
 
-    def get_best_hand_ARCHIVE_01(self, comm_cards: list[Card]) -> dict:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def _get_best_hand_ARCHIVE_01(self, comm_cards: list[Card]) -> dict:
         """Designed to be called by `PokerGame.e10_showdown()`."""
         # ---------------------------------------------------------------------
         # TODO: Write an algorithm that takes a list of seven `Card` instances
@@ -1392,4 +1581,3 @@ if __name__ == '__main__':
         # ------------
         # EZ-Variables: High Card
         pass
-
