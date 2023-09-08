@@ -178,19 +178,24 @@ class Player:
             else:
                 rank_count[c.get_rank_int()] += 1
 
-        # ------------- INVENTORY -------------
-        # cards: list[Card]
-        #   :
-        #   +---> Contains all 7 cards in descending order.
+        # ----------------------------- INVENTORY -----------------------------
         #
-        # suit_count: dict[str, int]
-        #   :
-        #   +---> Counts how many of each suit are present in `cards`
+        #  1. cards: list[Card]
+        #       :
+        #       +---> Contains all 7 cards in descending order.
         #
-        # rank_count: dict[int, int]
-        #   :
-        #   +---> Counts how many of each rank are present in `cards`
-        #         NOTE: 14 = 'Ace'
+        #  2. suit_count: dict[str, int]
+        #       :
+        #       +---> Counts how many of each suit are present in `cards`
+        #
+        #  3. rank_count: dict[int, int]
+        #       :
+        #       +---> Counts how many of each rank are present in `cards`
+        #             NOTE: 14 = 'Ace'
+        #                   13 = 'King'
+        #                   10 = '10'
+        #                    2 = '2'
+        # ---------------------------------------------------------------------
 
         # Prep Crew
         # =========
@@ -212,7 +217,7 @@ class Player:
         cnd_toak: bool = False
         for rank, count in rank_count.items():
             if count == 3:
-                cnd_toak = True
+                cnd_toak = True 
         # Condition: Two Pair and/or Pair
         cnd_2pair: bool = False
         cnd_pair: bool = False
@@ -232,6 +237,16 @@ class Player:
                 9. Straight Flush
                 6. Flush
             """
+            # 10. Royal Flush
+            # ---------------
+            pass
+
+            # 9. Straight Flush
+            # -----------------
+            pass
+
+            # 6. Flush
+            # --------
             pass
 
         else:
