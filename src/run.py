@@ -429,25 +429,30 @@ class Player:
             kickers: list[Card] = []
 
             # Update iterator.
-            i_count: int = 0
-            last_rank: str = ''
+            # i_count: int = 0
             # Analyze each card, then append them to either `kickers` or `hand`
             for c in cards:
                 # EZ-variables
                 c_rank: int = c.get_rank_int()
                 c_suit: str = c.get_suit()
-                # if ...
-                if NotImplemented:
-                    pass
+                # if card == foak_rank
+                if c_rank == foak_rank:
+                    foak.append(c)
                 else:
                     kickers.append(c)
-
+            # --------------------- CURRENT STATE -----------------------------
+            #                foak = [ f4, f3, f2, f1, ]
+            #                kickers = [ k3, k2, k1 ]
+            # -----------------------------------------------------------------
+            foak.append(kickers.pop(0))
+            # ---------------------- FINAL STATE ------------------------------
+            #                foak = [ f4, f3, f2, f1, k3 ]
+            #                kickers = [ k2, k1 ]
+            # -----------------------------------------------------------------
             # Final Check: Flush
-            if i_count == 5:
-                return {'hand_rank': 8,
-                        'hand_type': foak,
-                        'kickers': kickers}
-
+            return {'hand_rank': 8,
+                    'hand_type': foak,
+                    'kickers': kickers}
 
         else:
             """
