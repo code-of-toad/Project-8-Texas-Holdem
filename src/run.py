@@ -420,10 +420,38 @@ class Player:
                         'hand_type': flush,
                         'kickers': kickers}
 
+        elif cnd_foak:
+            # -----------------
+            # 8. Four of a Kind
+            # -----------------
+            ## card: list[Card*7], descending order
+            foak: list[Card] = []
+            kickers: list[Card] = []
+
+            # Update iterator.
+            i_count: int = 0
+            last_rank: str = ''
+            # Analyze each card, then append them to either `kickers` or `hand`
+            for c in cards:
+                # EZ-variables
+                c_rank: int = c.get_rank_int()
+                c_suit: str = c.get_suit()
+                # if ...
+                if NotImplemented:
+                    pass
+                else:
+                    kickers.append(c)
+
+            # Final Check: Flush
+            if i_count == 5:
+                return {'hand_rank': 8,
+                        'hand_type': foak,
+                        'kickers': kickers}
+
+
         else:
             """
             #todo
-                8. Four of a Kind
                 7. Full House
                 5. Straight
                 4. Three of a Kind
@@ -432,8 +460,7 @@ class Player:
                 1. High Card
             """
             pass
-
-
+            
 def print_card(card: Card) -> None:
     if card.is_blk():
         print(Style.BRIGHT + Back.WHITE + Fore.BLACK + f"  {card}  ", end='')
