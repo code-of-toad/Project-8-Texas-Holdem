@@ -233,16 +233,16 @@ class Player:
         #  rank_count: dict[int, int]
         #     :
         #     +---> Counts how many of each rank are present in `cards`.
-        #           NOTE: 13 = 'King'
-        #                 10 = '10'
-        #                  2 = '2'
-        #                  1 = 'Ace'
+        #             **NOTE: 13 = 'King'
+        #                     10 = '10'
+        #                      2 = '2'
+        #                      1 = 'Ace'
         #
         #  cnd_flush: bool
         #  cnd_foak: bool
         #  cnd_toak: bool
-        #  cnd_pair2: bool
         #  cnd_pair1: bool
+        #  cnd_pair2: bool
         #
         #  flush_suit: Optional[str]
         #  foak_rank: Optional[int]
@@ -273,7 +273,7 @@ class Player:
             # - [ace-A, ace-B, ace-C, king-B, queen-B, jack-B, 10-C] 
             # - [ace-A, king-A, queen-A, 5-A, 4-A, 3-A, 2-A]
             # ---------------
-            ## card: list[Card*7], descending order
+            ## cards: list[Card*7], descending order
             royal_flush: list[Card] = []
             kickers: list[Card] = []
 
@@ -287,37 +287,40 @@ class Player:
                 if i_count == 0: 
                     if c.get_rank_str() == 'Ace' and c.get_suit() == flush_suit:
                         royal_flush.append(c)
+                        i_count += 1
                     else:
                         kickers.append(c)
                 # elif royal_flush == [Ace]
                 elif i_count == 1:
                     if c.get_rank_str() == 'King' and c.get_suit() == flush_suit:
                         royal_flush.append(c)
+                        i_count += 1
                     else:
                         kickers.append(c)
                 # elif royal_flush == [Ace, King]
                 elif i_count == 2:
                     if c.get_rank_str() == 'Queen' and c.get_suit() == flush_suit:
                         royal_flush.append(c)
+                        i_count += 1
                     else:
                         kickers.append(c)
                 # elif royal_flush == [Ace, King, Queen]
                 elif i_count == 3:
                     if c.get_rank_str() == 'Jack' and c.get_suit() == flush_suit:
                         royal_flush.append(c)
+                        i_count += 1
                     else:
                         kickers.append(c)
                 # elif royal_flush == [Ace, King, Queen, Jack]
                 elif i_count == 4:
                     if c.get_rank_str() == '10' and c.get_suit() == flush_suit:
                         royal_flush.append(c)
+                        i_count += 1
                     else:
                         kickers.append(c)
                 # elif royal_flush == [Ace, King, Queen, Jack, 10]
                 else:
                     kickers.append(c)
-                # Update iterator.
-                i_count += 1
 
             # Final Check: Royal Flush
             if i_count == 5:
@@ -345,12 +348,12 @@ class Player:
             # failure
             # - [jack-A, 10-A, 9-A, 8-C, 7-C, 6-C, 5-C]
             # -----------------
-            ## card: list[Card*7], descending order
+            ## cards: list[Card*7], descending order
             str8_flush: list[Card] = []
             kickers: list[Card] = []
             flush_cards: list[Card] = [c for c in cards if c.get_suit() == flush_suit]
 
-            # Update iterator.
+            # iterator
             i_count: int = 0
             last_rank: int
             # Analyze each card, then append them to either `kickers` or `hand`
@@ -358,11 +361,14 @@ class Player:
                 # EZ-variables
                 c_rank: int = c.get_rank_int()
                 c_suit: str = c.get_suit()
-                # if card == WRONG suit || len(str8_flush) == 5
-                if c_suit != flush_suit or i_count == 5:
+                # if card == WRONG suit
+                if c_suit != flush_suit:
                     kickers.append(c)
                 # Now, all following elif-branches run for CORRECT card suit.
                 #
+                # elif len(str8_flush) == 5
+                elif i_count == 5:
+                    kickers.append(c)
                 # elif str8_flush == [5, 4, 3, 2 ]
                 elif i_count == 4 and last_rank == 2:
                     if flush_cards[0].get_rank_str == 'Ace':
@@ -395,11 +401,11 @@ class Player:
             # --------
             # 6. Flush
             # --------
-            ## card: list[Card*7], descending order
+            ## cards: list[Card*7], descending order
             flush: list[Card] = []
             kickers: list[Card] = []
 
-            # Update iterator.
+            # iterator
             i_count: int = 0
             last_rank: str = ''
             # Analyze each card, then append them to either `kickers` or `hand`
@@ -424,11 +430,11 @@ class Player:
             # -----------------
             # 8. Four of a Kind
             # -----------------
-            ## card: list[Card*7], descending order
+            ## cards: list[Card*7], descending order
             foak: list[Card] = []
             kickers: list[Card] = []
 
-            # Update iterator.
+            # iterator
             # i_count: int = 0
             # Analyze each card, then append them to either `kickers` or `hand`
             for c in cards:
@@ -449,15 +455,40 @@ class Player:
             #                foak = [ f4, f3, f2, f1, k3 ]
             #                kickers = [ k2, k1 ]
             # -----------------------------------------------------------------
-            # Final Check: Flush
+
+            # Final Check: Four of a Kind
             return {'hand_rank': 8,
                     'hand_type': foak,
                     'kickers': kickers}
+        
+        elif cnd_toak and cnd_pair1:
+            # -------------
+            # 7. Full House
+            # -------------
+            ## cards: list[Card*7], descending order
+            full_house: list[Card] = []
+            kickers: list[Card] = []
+
+            # iterator
+            i_count: int = 0
+            # Analyze each card, then append them to either `kickers` or `hand`
+            for c in cards:
+                # EZ-variables
+                c_rank: int = c.get_rank_int()
+                c_suit: str = c.get_suit()
+                # if ...
+                if NotImplemented:                                        #TODO
+                    pass                                                  #TODO
+
+            # Final Check: Full House
+            if NotImplemented:                                            #TODO
+                return {'hand_rank': 7,
+                        'hand_type': full_house,
+                        'kickers': kickers}
 
         else:
             """
             #todo
-                7. Full House
                 5. Straight
                 4. Three of a Kind
                 3. Two Pair
